@@ -1,0 +1,25 @@
+advantage:
+  value_checkpoint: ${oc.env:STEAM_VALUE_CHECKPOINT}
+  batch_size: 8
+  num_dataloader_workers_per_gpu: 2
+  prefetch_factor: 2
+  label_mode: quantile
+  rollout_quantile: 0.3
+  expert_quantile: 0.8
+  tag: lbench_steam_k32_e3_v1
+  model:
+    precision: bf16
+data:
+  k: 32
+  camera_keys:
+  - observation.images.obs_camera
+  - observation.images.obs_camera_2
+  - observation.images.realsense
+  train_data_paths:
+  - dataset_path: /root/autodl-tmp/datasets/lbench_8tasks_all_merge_simple_v21_merged
+    type: sft
+  - dataset_path: /root/autodl-tmp/datasets/steam_rollout_v21
+    type: rollout
+distributed:
+  backend: nccl
+  timeout: 3600

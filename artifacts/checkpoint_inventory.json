@@ -1,0 +1,230 @@
+[
+  {
+    "path": "/root/autodl-tmp/outputs/lbench_recap_round1/policy_h50_e20/checkpoints/global_step_20000",
+    "complete": true,
+    "files": [
+      {
+        "path": ".checkpoint_complete",
+        "bytes": 6
+      },
+      {
+        "path": "actor/dcp_checkpoint/.metadata",
+        "bytes": 2544284
+      },
+      {
+        "path": "actor/dcp_checkpoint/__0_0.distcp",
+        "bytes": 22757680269
+      },
+      {
+        "path": "actor/dcp_checkpoint/__1_0.distcp",
+        "bytes": 22759087459
+      },
+      {
+        "path": "actor/lbench/lbench_multitask_joint/norm_stats.json",
+        "bytes": 2082
+      },
+      {
+        "path": "actor/lerobot_episode_stats/norm_stats.json",
+        "bytes": 2082
+      },
+      {
+        "path": "actor/model_state_dict/full_weights.pt",
+        "bytes": 16573944856
+      },
+      {
+        "path": "actor/openpi_assets.json",
+        "bytes": 411
+      },
+      {
+        "path": "lbench/lbench_multitask_joint/norm_stats.json",
+        "bytes": 2082
+      },
+      {
+        "path": "lerobot_episode_stats/norm_stats.json",
+        "bytes": 2082
+      },
+      {
+        "path": "openpi_assets.json",
+        "bytes": 411
+      }
+    ]
+  },
+  {
+    "path": "/root/autodl-tmp/outputs/lbench_recap_round1/policy_h50_e20/checkpoints/global_step_25000",
+    "complete": true,
+    "files": [
+      {
+        "path": ".checkpoint_complete",
+        "bytes": 6
+      },
+      {
+        "path": "actor/dcp_checkpoint/.metadata",
+        "bytes": 2544284
+      },
+      {
+        "path": "actor/dcp_checkpoint/__0_0.distcp",
+        "bytes": 22757680269
+      },
+      {
+        "path": "actor/dcp_checkpoint/__1_0.distcp",
+        "bytes": 22759087459
+      },
+      {
+        "path": "actor/lbench/lbench_multitask_joint/norm_stats.json",
+        "bytes": 2082
+      },
+      {
+        "path": "actor/lerobot_episode_stats/norm_stats.json",
+        "bytes": 2082
+      },
+      {
+        "path": "actor/model_state_dict/full_weights.pt",
+        "bytes": 16573944856
+      },
+      {
+        "path": "actor/openpi_assets.json",
+        "bytes": 411
+      },
+      {
+        "path": "lbench/lbench_multitask_joint/norm_stats.json",
+        "bytes": 2082
+      },
+      {
+        "path": "lerobot_episode_stats/norm_stats.json",
+        "bytes": 2082
+      },
+      {
+        "path": "openpi_assets.json",
+        "bytes": 411
+      }
+    ]
+  },
+  {
+    "path": "/root/autodl-tmp/outputs/lbench_recap_round1/policy_h50_e20/checkpoints/global_step_30000",
+    "complete": true,
+    "files": [
+      {
+        "path": ".checkpoint_complete",
+        "bytes": 6
+      },
+      {
+        "path": "actor/dcp_checkpoint/.metadata",
+        "bytes": 2544284
+      },
+      {
+        "path": "actor/dcp_checkpoint/__0_0.distcp",
+        "bytes": 22757680269
+      },
+      {
+        "path": "actor/dcp_checkpoint/__1_0.distcp",
+        "bytes": 22759087459
+      },
+      {
+        "path": "actor/lbench/lbench_multitask_joint/norm_stats.json",
+        "bytes": 2082
+      },
+      {
+        "path": "actor/lerobot_episode_stats/norm_stats.json",
+        "bytes": 2082
+      },
+      {
+        "path": "actor/model_state_dict/full_weights.pt",
+        "bytes": 16573944856
+      },
+      {
+        "path": "actor/openpi_assets.json",
+        "bytes": 411
+      },
+      {
+        "path": "lbench/lbench_multitask_joint/norm_stats.json",
+        "bytes": 2082
+      },
+      {
+        "path": "lerobot_episode_stats/norm_stats.json",
+        "bytes": 2082
+      },
+      {
+        "path": "openpi_assets.json",
+        "bytes": 411
+      }
+    ]
+  },
+  {
+    "path": "/root/autodl-tmp/outputs/lbench_recap_round1/value/checkpoints/global_step_6000",
+    "complete": true,
+    "files": [
+      {
+        "path": ".checkpoint_complete",
+        "bytes": 5
+      },
+      {
+        "path": "actor/dcp_checkpoint/.metadata",
+        "bytes": 2029277
+      },
+      {
+        "path": "actor/dcp_checkpoint/__0_0.distcp",
+        "bytes": 4723022326
+      },
+      {
+        "path": "actor/dcp_checkpoint/__1_0.distcp",
+        "bytes": 4724274495
+      },
+      {
+        "path": "actor/model_state_dict/full_weights.pt",
+        "bytes": 3594047717
+      }
+    ]
+  },
+  {
+    "path": "/root/autodl-tmp/outputs/lbench_recap_round1/value/checkpoints/global_step_7000",
+    "complete": true,
+    "files": [
+      {
+        "path": ".checkpoint_complete",
+        "bytes": 5
+      },
+      {
+        "path": "actor/dcp_checkpoint/.metadata",
+        "bytes": 2029277
+      },
+      {
+        "path": "actor/dcp_checkpoint/__0_0.distcp",
+        "bytes": 4723022326
+      },
+      {
+        "path": "actor/dcp_checkpoint/__1_0.distcp",
+        "bytes": 4724274495
+      },
+      {
+        "path": "actor/model_state_dict/full_weights.pt",
+        "bytes": 3594047717
+      }
+    ]
+  },
+  {
+    "path": "/root/autodl-tmp/outputs/lbench_recap_round1/value/checkpoints/global_step_8000",
+    "complete": true,
+    "files": [
+      {
+        "path": ".checkpoint_complete",
+        "bytes": 5
+      },
+      {
+        "path": "actor/dcp_checkpoint/.metadata",
+        "bytes": 2029277
+      },
+      {
+        "path": "actor/dcp_checkpoint/__0_0.distcp",
+        "bytes": 4723022326
+      },
+      {
+        "path": "actor/dcp_checkpoint/__1_0.distcp",
+        "bytes": 4724274495
+      },
+      {
+        "path": "actor/model_state_dict/full_weights.pt",
+        "bytes": 3594047717
+      }
+    ]
+  }
+]

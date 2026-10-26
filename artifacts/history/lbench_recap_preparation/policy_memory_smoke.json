@@ -1,0 +1,185 @@
+{
+  "episodes": 4493,
+  "frames": 3740411,
+  "precision": "float32",
+  "datasets": [
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/clean_the_dirt_with_browncloth_lighttable_part0_first200",
+      "frames": 70289,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/heat_the_food_in_the_microwave_first200",
+      "frames": 250464,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/insert_the_flower_in_vase_part0_first200",
+      "frames": 142912,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/pack_in_objects_franka_first200",
+      "frames": 138059,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/put_the_trashcan_in_trashcan_part0_first200",
+      "frames": 110729,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/stack_bowls_first200",
+      "frames": 161862,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/store_objects_in_the_drawer_0_first200",
+      "frames": 140764,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/watering_plant_left_first200",
+      "frames": 134900,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/clean_the_dirt_with_browncloth_lighttable_part0_first10000",
+      "frames": 111476,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/heat_the_food_in_the_microwave_first10000",
+      "frames": 682313,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/insert_the_flower_in_vase_part0_first10000",
+      "frames": 227881,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/pack_in_objects_franka_first10000",
+      "frames": 360108,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/put_the_trashcan_in_trashcan_part0_first10000",
+      "frames": 318271,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/stack_bowls_first10000",
+      "frames": 286159,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/store_objects_in_the_drawer_0_first10000",
+      "frames": 352861,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/watering_plant_left_first10000",
+      "frames": 251363,
+      "checked_first_and_last": true
+    }
+  ],
+  "policy_gpu_smoke": [
+    {
+      "step": 1,
+      "loss": 0.0005683576455339789,
+      "action_head_grad_norm": 0.06928862631320953,
+      "gpu_allocated_gib": 37.73817777633667,
+      "gpu_reserved_gib": 54.59765625,
+      "cpu_rss_gib": 9.488033294677734
+    },
+    {
+      "step": 2,
+      "loss": 0.0073962220922112465,
+      "action_head_grad_norm": 0.2530037760734558,
+      "gpu_allocated_gib": 37.73817777633667,
+      "gpu_reserved_gib": 56.591796875,
+      "cpu_rss_gib": 9.489131927490234
+    },
+    {
+      "step": 3,
+      "loss": 0.0023156015668064356,
+      "action_head_grad_norm": 0.1934879571199417,
+      "gpu_allocated_gib": 37.73817777633667,
+      "gpu_reserved_gib": 56.591796875,
+      "cpu_rss_gib": 9.48929214477539
+    },
+    {
+      "step": 4,
+      "loss": 0.0011322530917823315,
+      "action_head_grad_norm": 0.06995293498039246,
+      "gpu_allocated_gib": 37.73817777633667,
+      "gpu_reserved_gib": 56.591796875,
+      "cpu_rss_gib": 9.48929214477539
+    },
+    {
+      "step": 5,
+      "loss": 0.0009582655038684607,
+      "action_head_grad_norm": 0.06216549500823021,
+      "gpu_allocated_gib": 37.73817777633667,
+      "gpu_reserved_gib": 56.591796875,
+      "cpu_rss_gib": 9.48944091796875
+    },
+    {
+      "step": 6,
+      "loss": 0.0024115240667015314,
+      "action_head_grad_norm": 0.11715911328792572,
+      "gpu_allocated_gib": 37.73817777633667,
+      "gpu_reserved_gib": 56.591796875,
+      "cpu_rss_gib": 9.48944091796875
+    },
+    {
+      "step": 7,
+      "loss": 0.004962156526744366,
+      "action_head_grad_norm": 0.21148674190044403,
+      "gpu_allocated_gib": 37.73817777633667,
+      "gpu_reserved_gib": 56.591796875,
+      "cpu_rss_gib": 9.48944091796875
+    },
+    {
+      "step": 8,
+      "loss": 0.00034093292197212577,
+      "action_head_grad_norm": 0.048577047884464264,
+      "gpu_allocated_gib": 37.73817777633667,
+      "gpu_reserved_gib": 56.591796875,
+      "cpu_rss_gib": 9.489448547363281
+    },
+    {
+      "step": 9,
+      "loss": 0.010137524455785751,
+      "action_head_grad_norm": 0.5100967884063721,
+      "gpu_allocated_gib": 37.73817777633667,
+      "gpu_reserved_gib": 56.591796875,
+      "cpu_rss_gib": 9.489448547363281
+    },
+    {
+      "step": 10,
+      "loss": 0.00464985053986311,
+      "action_head_grad_norm": 0.2624516487121582,
+      "gpu_allocated_gib": 37.73817777633667,
+      "gpu_reserved_gib": 56.591796875,
+      "cpu_rss_gib": 9.489448547363281
+    },
+    {
+      "step": 11,
+      "loss": 0.0017947772284969687,
+      "action_head_grad_norm": 0.11118705570697784,
+      "gpu_allocated_gib": 37.73817777633667,
+      "gpu_reserved_gib": 56.591796875,
+      "cpu_rss_gib": 9.489448547363281
+    },
+    {
+      "step": 12,
+      "loss": 0.001998470164835453,
+      "action_head_grad_norm": 0.13111332058906555,
+      "gpu_allocated_gib": 37.73817777633667,
+      "gpu_reserved_gib": 56.591796875,
+      "cpu_rss_gib": 9.489448547363281
+    }
+  ]
+}

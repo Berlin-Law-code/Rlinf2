@@ -1,0 +1,952 @@
+diff --git a/docs/source-en/rst_source/examples/embodied/sft_openpi.rst b/docs/source-en/rst_source/examples/embodied/sft_openpi.rst
+index d84a807a..480ef99f 100644
+--- a/docs/source-en/rst_source/examples/embodied/sft_openpi.rst
++++ b/docs/source-en/rst_source/examples/embodied/sft_openpi.rst
+@@ -113,6 +113,25 @@ You can also train on a custom LeRobot dataset format. Refer to the files below:
+             self.extra_delta_transform = True
+             self.action_train_with_rotation_6d = False
+ 
++Prediction and Execution Horizons
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++For ``model_type: openpi``, ``actor.model.openpi.action_horizon`` controls the
++number of future actions loaded and predicted during SFT. The offline SFT loss
++includes every predicted step and only the physical ``action_env_dim`` channels;
++the padded action channels are excluded. ``action_chunk`` controls how many
++predictions inference returns before replanning. For example, predict/train on
++50 steps and execute 20 with these overrides:
++
++.. code:: bash
++
++   actor.model.openpi.action_horizon=50 \
++   actor.model.openpi.action_chunk=20 \
++   actor.model.num_action_chunks=20
++
++This corresponds to LeRobot's ``chunk_size=50`` and ``n_action_steps=20``.
++DAgger retains its loss mask over the executed action chunk.
++
+ Normalization Statistics
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+@@ -145,6 +164,22 @@ The OpenPI loader later reads the normalization stats from ``<model_path>/<repo_
+ 
+ A practical tip for stable training is to manually check the normalization statistics for very small standard deviations or narrow q99–q01 ranges. Increasing the standard deviation or widening the q99–q01 gap can help stabilize training, especially in two-stage pipelines that transition from SFT to online training.
+ 
++Initialize from a Previous SFT Checkpoint
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++Set ``actor.model.model_path`` to the previous checkpoint directory and keep
++``runner.resume_dir=null`` to load its model weights with a fresh optimizer,
++scheduler, and step counter. This differs from resuming the saved training state.
++
++Checkpoint normalization is checked against any external statistics by default.
++If a new fine-tuning dataset deliberately uses different statistics, explicitly
++add ``+actor.model.allow_norm_stats_override=true`` and set
++``actor.model.openpi_data.norm_stats_path`` to that dataset's statistics.
++The source checkpoint is left intact and future checkpoints bundle the new
++statistics. The initial model's physical input/output mapping changes with the
++normalization, so this option is intended for a new training stage; keep the
++default normalization check for inference and checkpoint resume.
++
+ Installation
+ ------------
+ 
+diff --git a/docs/source-en/rst_source/examples/embodied/steam.rst b/docs/source-en/rst_source/examples/embodied/steam.rst
+index 61fe13e9..adc5f0d2 100644
+--- a/docs/source-en/rst_source/examples/embodied/steam.rst
++++ b/docs/source-en/rst_source/examples/embodied/steam.rst
+@@ -626,3 +626,22 @@ model-agnostic post-processing with RECAP via
+        ├── advantage.py                         # quantile threshold + boolean label
+        ├── distributed.py                       # sharded-inference helpers
+        └── mixture_config.py                    # meta/mixture_config.yaml tag I/O
++
++Local LBench H50/E20 recipe
++----------------------------------------
++
++The ``lbench_steam_value``, ``lbench_steam_advantages``, and ``lbench_cfgrl``
++configs target the local eight-task datasets and two GPUs. Run
++``bash examples/offline_rl/run_lbench_steam.sh check`` for CPU preprocessing
++parity checks, then use the ``value``, ``advantages``, and ``policy`` stages.
++Set ``STEAM_VALUE_CHECKPOINT`` to the trained critic's actor directory before
++labeling. The default critic configuration uses all expert episodes; independent
++episode-level validation must be added before selecting on generalization.
++
++CFG inherits normalization and compatibility metadata from the SFT checkpoint,
++retains FP32 parameters with BF16 AMP, supervises all 50 predicted actions on
++8 physical channels, and executes 20 actions. Guidance tokenization receives
++normalized state before padding, and inference preserves all three cameras.
++Initialization uses model weights with ``runner.resume_dir=null``. The generated
++advantage files must exist before policy training; the recipe does not launch
++simulation evaluation automatically.
+diff --git a/docs/source-zh/rst_source/examples/embodied/sft_openpi.rst b/docs/source-zh/rst_source/examples/embodied/sft_openpi.rst
+index c9a15a5e..dec5095c 100644
+--- a/docs/source-zh/rst_source/examples/embodied/sft_openpi.rst
++++ b/docs/source-zh/rst_source/examples/embodied/sft_openpi.rst
+@@ -112,6 +112,23 @@ RLinf 支持 LeRobot 格式的数据集，通过 ``config_name`` 字段指定。
+             self.extra_delta_transform = True
+             self.action_train_with_rotation_6d = False
+ 
++预测长度与执行长度
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++对于 ``model_type: openpi``，``actor.model.openpi.action_horizon`` 控制 SFT
++加载和预测的未来动作步数。离线 SFT 的 loss 覆盖全部预测步，只保留
++``action_env_dim`` 个实际动作维度，排除补零维度。``action_chunk`` 控制推理时
++每次返回多少步动作，执行后再重新预测。例如，预测并训练 50 步、执行 20 步：
++
++.. code:: bash
++
++   actor.model.openpi.action_horizon=50 \
++   actor.model.openpi.action_chunk=20 \
++   actor.model.num_action_chunks=20
++
++这对应 LeRobot 的 ``chunk_size=50``、``n_action_steps=20``。
++DAgger 继续使用执行动作段的 loss 掩码。
++
+ 归一化统计
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+@@ -146,6 +163,21 @@ OpenPI 加载器会在运行时从 ``<model_path>/<repo_id>`` 读取归一化统
+ 或过窄的 q99-q01 区间。适当增大标准差，或拉宽 q99-q01 的范围，通常有助于提升
+ 训练稳定性，尤其是在先做 SFT 再进入在线训练的两阶段流程中。
+ 
++从已有 SFT Checkpoint 初始化
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++将 ``actor.model.model_path`` 设为已有 checkpoint 目录，并保持
++``runner.resume_dir=null``，即可加载模型权重并重新初始化优化器、学习率调度和步数。
++这与恢复原有训练状态不同。
++
++默认会检查显式指定的统计是否与 checkpoint 自带的统计一致。
++当新一轮微调明确使用不同的数据集统计时，添加
++``+actor.model.allow_norm_stats_override=true``，并通过
++``actor.model.openpi_data.norm_stats_path`` 指定新统计。
++源 checkpoint 保持原样，新保存的 checkpoint 会携带新统计。
++改变归一化会改变初始模型的物理输入输出映射，因此该选项用于新的微调阶段；
++推理和断点续训应保留默认的统计一致性检查。
++
+ 安装
+ ----------------------------------------
+ 
+diff --git a/docs/source-zh/rst_source/examples/embodied/steam.rst b/docs/source-zh/rst_source/examples/embodied/steam.rst
+index 07fd6df0..0e60b9b5 100644
+--- a/docs/source-zh/rst_source/examples/embodied/steam.rst
++++ b/docs/source-zh/rst_source/examples/embodied/steam.rst
+@@ -536,3 +536,51 @@ STEAM 将各步骤脚本自包含在 ``examples/`` 下（绑定模型的推理 +
+        ├── advantage.py                         # 分位数阈值 + 布尔标签
+        ├── distributed.py                       # 分片推理辅助
+        └── mixture_config.py                    # meta/mixture_config.yaml tag I/O
++
++LBench H50/E20 本地流程
++----------------------------------------
++
++本仓库的 ``lbench_steam_value``、``lbench_steam_advantages`` 和
++``lbench_cfgrl`` 配置对应本地八任务数据及两张 GPU。启动器使用
++``/root/autodl-tmp/.venvs/rlinf-openpi``，路径可在配置文件中修改。
++rollout 按采集者确认视为当前 H50/E20 模型数据；历史 provenance 路径不作为权重版本判据。
++
++先检查真实样本的 SFT/CFG 预处理一致性，再启动短 STEAM 测试：
++
++.. code-block:: bash
++
++   cd /root/autodl-tmp/Berlin/RLinf
++   bash examples/offline_rl/run_lbench_steam.sh check
++   bash examples/offline_rl/run_lbench_steam.sh value --cfg job --resolve
++   bash examples/offline_rl/run_lbench_steam.sh value \
++     runner.max_steps=2 runner.save_interval=-1 \
++     runner.logger.log_path=/root/autodl-tmp/outputs/lbench_steam_smoke \
++     actor.micro_batch_size=1 actor.global_batch_size=2
++
++短测试通过后，正式训练和标注：
++
++.. code-block:: bash
++
++   bash examples/offline_rl/run_lbench_steam.sh value
++   export STEAM_VALUE_CHECKPOINT=/root/autodl-tmp/outputs/lbench_steam/lbench_steam_k32_e3/checkpoints/global_step_16000/actor
++   bash examples/offline_rl/run_lbench_steam.sh advantages
++   bash examples/offline_rl/run_lbench_steam.sh policy --cfg job --resolve
++   bash examples/offline_rl/run_lbench_steam.sh policy
++
++将 ``STEAM_VALUE_CHECKPOINT`` 改成实际选定的完整检查点。优势标注写入两份数据的
++``meta/advantages_lbench_steam_k32_e3_v1.parquet``；不能在该文件生成前启动策略训练。
++当前 STEAM 配置使用全部专家演示，未建立独立验证集；训练 loss 不能作为泛化指标。
++正式比较应增加按 episode 划分的评论器验证集，并用独立场景/种子评测策略。
++
++CFGRL 初始化使用现有 SFT checkpoint 的模型权重，``runner.resume_dir=null``。
++数据加载与推理均读取 checkpoint 归一化资产，使用 LeRobot 兼容预处理，
++FP32 参数和 BF16 AMP。模型预测 50 步，loss 覆盖全部 50 步的前 8 个实际动作维度，
++推理执行前 20 步。正、负 guidance prompt 使用归一化后、补齐前的同一 state。
++保存时由 FSDP model manager 一并导出实际归一化资产。
++
++策略训练默认专家/rollout 各采样 50%，学习率 5e-6，5000 步；
++这些是起始实验参数，非已验证最优值。评测时比较 guidance scale 1、1.5、2、3，
++并保留原始 SFT 和等预算混合数据 SFT 对照。当前配置不自动执行仿真评测。
++
++评测服务必须实例化 ``cfg_model`` 并设置 ``openpi.cfgrl_guidance_scale``。
++仅将新权重交给普通 SFT 推理入口，不会自动启用 CFG 条件分支。
+diff --git a/examples/offline_rl/advantage_labeling/recap/process/compute_advantages.py b/examples/offline_rl/advantage_labeling/recap/process/compute_advantages.py
+index 15e3e489..3d8baed4 100644
+--- a/examples/offline_rl/advantage_labeling/recap/process/compute_advantages.py
++++ b/examples/offline_rl/advantage_labeling/recap/process/compute_advantages.py
+@@ -80,6 +80,7 @@ from rlinf.data.datasets.recap.utils import (
+     load_return_stats_from_dataset,
+     load_returns_sidecar,
+ )
++from rlinf.data.datasets.recap.video_dataset import CachedVideoLeRobotDataset
+ from rlinf.data.storage.lerobot import episode_boundaries  # noqa: E402
+ from rlinf.models.embodiment.value_model.recap.modeling_critic import ValueCriticModel
+ 
+@@ -88,6 +89,13 @@ logger = logging.getLogger(__name__)
+ 
+ # Maps LeRobot dataset keys to value model observation format
+ KEY_MAPPINGS = {
++    "lbench": {
++        "observation.images.obs_camera": "observation/image",
++        "observation.images.obs_camera_2": "observation/wrist_image",
++        "observation.images.realsense": "observation/extra_view_image",
++        "observation.state": "observation/state",
++        "task": "prompt",
++    },
+     "franka": {
+         # Multi-cam format (front_cam + wrist_cam)
+         "observation.images.front_cam": "observation/images/front_cam",
+@@ -238,6 +246,7 @@ def _parse_value_model_kwargs(cfg: DictConfig) -> dict:
+ def load_lerobot_dataset(
+     dataset_path: Path,
+     returns_tag: str | None = None,
++    video_decoder_cache_size: int = 0,
+ ) -> tuple[LeRobotDataset, dict, LeRobotDatasetMetadata, dict | None]:
+     """Load a LeRobot dataset WITHOUT delta_timestamps for fast single-row access.
+ 
+@@ -251,6 +260,7 @@ def load_lerobot_dataset(
+     Args:
+         dataset_path: Path to dataset
+         returns_tag: Optional tag for the returns sidecar filename
++        video_decoder_cache_size: Maximum open TorchCodec readers per worker.
+ 
+     Returns:
+         Tuple of (dataset, tasks_dict, metadata, returns_sidecar)
+@@ -287,9 +297,10 @@ def load_lerobot_dataset(
+     logger.info(f"  Dataset path: {dataset_path}")
+     logger.info(f"  FPS: {meta.fps}")
+ 
+-    dataset = LeRobotDataset(
++    dataset = CachedVideoLeRobotDataset(
+         str(dataset_path),
+         download_videos=False,
++        video_decoder_cache_size=video_decoder_cache_size,
+     )
+     dataset.hf_dataset.set_transform(decode_image_struct_batch)
+ 
+@@ -1039,7 +1050,11 @@ def compute_advantages(cfg: DictConfig) -> None:
+                 logger.info(f"{'=' * 60}")
+ 
+             dataset, tasks, meta, returns_sidecar = load_lerobot_dataset(
+-                ds_path, returns_tag=returns_tag
++                ds_path,
++                returns_tag=returns_tag,
++                video_decoder_cache_size=int(
++                    cfg.advantage.get("video_decoder_cache_size", 0)
++                ),
+             )
+ 
+             local_df = compute_advantages_for_dataset(
+diff --git a/rlinf/data/datasets/recap/value_dataset.py b/rlinf/data/datasets/recap/value_dataset.py
+index 9fa491d7..0a457d87 100644
+--- a/rlinf/data/datasets/recap/value_dataset.py
++++ b/rlinf/data/datasets/recap/value_dataset.py
+@@ -41,7 +41,11 @@ from openpi.transforms import DataTransformFn
+ from torch.utils.data import Dataset
+ 
+ from rlinf.data.storage.lerobot import episode_boundaries
+-from rlinf.models.embodiment.openpi.policies import franka_policy, libero_policy
++from rlinf.models.embodiment.openpi.policies import (
++    franka_policy,
++    lbench_policy,
++    libero_policy,
++)
+ 
+ from .common import BaseDataLoaderImpl, ReCapMixtureDataset
+ from .utils import (
+@@ -59,6 +63,14 @@ _MODEL_TYPE_MAP = {
+ }
+ 
+ _REPACK_KEYS = {
++    "lbench": {
++        "observation/image": "observation.images.obs_camera",
++        "observation/wrist_image": "observation.images.obs_camera_2",
++        "observation/extra_view_image": "observation.images.realsense",
++        "observation/state": "observation.state",
++        "actions": "action",
++        "prompt": "prompt",
++    },
+     "libero": {
+         "observation/image": "image",
+         "observation/wrist_image": "wrist_image",
+@@ -320,7 +332,13 @@ class ValueDataset(Dataset):
+             )
+         transforms_list.append(_openpi_transforms.RepackTransform(repack_keys))
+ 
+-        if robot in ("libero", "libero_v2"):
++        if robot == "lbench":
++            transforms_list.append(
++                lbench_policy.LBenchInputs(
++                    model_type=model_type_enum, preserve_float_images=True
++                )
++            )
++        elif robot in ("libero", "libero_v2"):
+             transforms_list.append(
+                 libero_policy.LiberoInputs(model_type=model_type_enum)
+             )
+diff --git a/rlinf/models/embodiment/openpi/__init__.py b/rlinf/models/embodiment/openpi/__init__.py
+index 0892644c..3dbf5ce9 100644
+--- a/rlinf/models/embodiment/openpi/__init__.py
++++ b/rlinf/models/embodiment/openpi/__init__.py
+@@ -130,6 +130,7 @@ def get_model(cfg: DictConfig, torch_dtype=None):
+         checkpoint_dir,
+         (data_kwargs or {}).get("norm_stats_path"),
+         canonical_asset_id=canonical_asset_id,
++        allow_explicit_override=cfg.get("allow_norm_stats_override", False),
+     )
+     if norm_stats_file is not None:
+         data_kwargs = dict(data_kwargs or {})
+diff --git a/rlinf/models/embodiment/openpi/checkpoint_assets.py b/rlinf/models/embodiment/openpi/checkpoint_assets.py
+index be23127c..6db31572 100644
+--- a/rlinf/models/embodiment/openpi/checkpoint_assets.py
++++ b/rlinf/models/embodiment/openpi/checkpoint_assets.py
+@@ -18,6 +18,7 @@ from __future__ import annotations
+ 
+ import copy
+ import json
++import logging
+ import os
+ import tempfile
+ from pathlib import Path
+@@ -102,13 +103,20 @@ def resolve_checkpoint_norm_stats(
+     explicit_path: str | Path | None,
+     *,
+     canonical_asset_id: str | None = None,
++    allow_explicit_override: bool = False,
+ ) -> Path | None:
+     """Prefer bundled statistics and fail if an explicit override changes them.
+ 
+     Base models and legacy checkpoints without bundled statistics may still use
+     an external asset. A manifest naming missing assets is an incomplete
+     checkpoint, and must not silently fall back to an unrelated external file.
++    A new fine-tuning run may explicitly select new dataset statistics without
++    modifying the source checkpoint. Resume and inference keep the default.
+     """
++    if not isinstance(allow_explicit_override, bool):
++        raise ValueError("allow_explicit_override must be a boolean")
++    if allow_explicit_override and explicit_path is None:
++        raise ValueError("Normalization override requires an explicit norm_stats_path")
+     root = Path(checkpoint_dir)
+     manifest = read_checkpoint_manifest(root)
+     declared = manifest.get("norm_stats", [])
+@@ -143,7 +151,20 @@ def resolve_checkpoint_norm_stats(
+     for candidate in bundled[1:]:
+         validate_matching_norm_stats(selected, candidate)
+     if explicit is not None:
+-        validate_matching_norm_stats(selected, explicit)
++        if allow_explicit_override:
++            validate_matching_norm_stats(explicit, explicit)
++        try:
++            validate_matching_norm_stats(selected, explicit)
++        except ValueError:
++            if not allow_explicit_override:
++                raise
++            logging.getLogger(__name__).warning(
++                "Initializing fine-tuning with external normalization %s instead "
++                "of checkpoint normalization %s; source checkpoint is unchanged.",
++                explicit,
++                selected,
++            )
++            return explicit
+     return selected
+ 
+ 
+diff --git a/rlinf/models/embodiment/openpi/openpi_action_model.py b/rlinf/models/embodiment/openpi/openpi_action_model.py
+index 4156dfd2..633a69d8 100644
+--- a/rlinf/models/embodiment/openpi/openpi_action_model.py
++++ b/rlinf/models/embodiment/openpi/openpi_action_model.py
+@@ -455,7 +455,13 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch, BasePolicy):
+             train = train and self.config.sft_image_augmentation
+         return super()._preprocess_observation(observation, train=train)
+ 
+-    def sft_forward(self, data, use_action_chunk_loss: bool = False, **kwargs):
++    def sft_forward(
++        self,
++        data,
++        use_action_chunk_loss: bool = False,
++        use_action_dim_loss: bool = False,
++        **kwargs,
++    ):
+         if isinstance(data, tuple):
+             observation, actions = data
+         else:
+@@ -501,7 +507,9 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch, BasePolicy):
+             else:
+                 loss = super().forward(observation, actions)
+         if use_action_chunk_loss:
+-            loss = loss[:, : self.config.action_chunk, : self.config.action_env_dim]
++            loss = loss[:, : self.config.action_chunk]
++        if use_action_chunk_loss or use_action_dim_loss:
++            loss = loss[..., : self.config.action_env_dim]
+         vla_loss = loss.mean()
+         if not self.config.use_rlt:
+             return vla_loss
+diff --git a/rlinf/models/embodiment/openpi_cfg/__init__.py b/rlinf/models/embodiment/openpi_cfg/__init__.py
+index 57281120..5f9eab6b 100644
+--- a/rlinf/models/embodiment/openpi_cfg/__init__.py
++++ b/rlinf/models/embodiment/openpi_cfg/__init__.py
+@@ -22,17 +22,21 @@ def get_model(cfg: DictConfig, torch_dtype=None):
+ 
+     import openpi.shared.download as download
+     import openpi.transforms as transforms
+-    import safetensors
++    import safetensors.torch
+     from openpi.training import checkpoints as _checkpoints
+ 
++    from rlinf.models.embodiment.openpi import _load_state_dict
++    from rlinf.models.embodiment.openpi.checkpoint_assets import build_checkpoint_assets
+     from rlinf.models.embodiment.openpi.dataconfig import get_openpi_config
++    from rlinf.models.embodiment.openpi.precision import apply_parameter_precision
++    from rlinf.models.embodiment.openpi_cfg.contract import resolve_cfg_contract
+     from rlinf.models.embodiment.openpi_cfg.openpi_cfg_action_model import (
+         OpenPi0Config,
+         OpenPi0ForCFGActionPrediction,
+     )
+ 
+     config_name = getattr(cfg.openpi, "config_name", None)
+-    actor_train_config = get_openpi_config(config_name)
++    actor_train_config, parameter_precision = resolve_cfg_contract(cfg)
+     actor_model_config = actor_train_config.model
+     actor_model_config = OpenPi0Config(**actor_model_config.__dict__)
+     override_config_kwargs = cfg.openpi
+@@ -51,29 +55,48 @@ def get_model(cfg: DictConfig, torch_dtype=None):
+     model: OpenPi0ForCFGActionPrediction = OpenPi0ForCFGActionPrediction(
+         actor_model_config
+     )
++    if parameter_precision == "float32":
++        apply_parameter_precision(model, parameter_precision)
+     if actor_model_config.train_expert_only:
+         model.freeze_vlm()
+ 
+     if os.path.exists(full_weights_path):
+         model_state_dict = torch.load(full_weights_path, map_location="cpu")
+-        model.load_state_dict(model_state_dict, strict=False)
++        _load_state_dict(
++            model, model_state_dict, config_name=config_name, add_value_head=False
++        )
+     elif os.path.exists(actor_full_weights_path):
+         model_state_dict = torch.load(actor_full_weights_path, map_location="cpu")
+-        model.load_state_dict(model_state_dict, strict=False)
++        _load_state_dict(
++            model, model_state_dict, config_name=config_name, add_value_head=False
++        )
+     else:
+         weight_paths = sorted(glob.glob(os.path.join(checkpoint_dir, "*.safetensors")))
+         if not weight_paths:
+             weight_paths = [os.path.join(checkpoint_dir, "model.safetensors")]
++        model_state_dict = {}
+         for weight_path in weight_paths:
+-            safetensors.torch.load_model(model, weight_path, strict=False)
++            shard = safetensors.torch.load_file(weight_path, device="cpu")
++            if model_state_dict.keys() & shard.keys():
++                raise ValueError("Duplicate parameter keys in CFG safetensors shards")
++            model_state_dict.update(shard)
++        _load_state_dict(
++            model, model_state_dict, config_name=config_name, add_value_head=False
++        )
+ 
+-    model.paligemma_with_expert.to_bfloat16_for_selected_params("bfloat16")
++    apply_parameter_precision(model, parameter_precision)
+     data_config = actor_train_config.data.create(
+         actor_train_config.assets_dirs, actor_model_config
+     )
+     if data_config.asset_id is None:
+         raise ValueError("Asset id is required to load norm stats.")
+-    norm_stats = _checkpoints.load_norm_stats(checkpoint_dir, data_config.asset_id)
++    norm_stats = data_config.norm_stats
++    if norm_stats is None:
++        norm_stats = _checkpoints.load_norm_stats(checkpoint_dir, data_config.asset_id)
++    lerobot_compatible = bool(
++        getattr(actor_train_config.data, "lerobot_compatible", False)
++    )
++    native_norm_stats = None if lerobot_compatible else norm_stats
+ 
+     repack_transforms = transforms.Group()
+     default_prompt = None
+@@ -83,18 +106,30 @@ def get_model(cfg: DictConfig, torch_dtype=None):
+             transforms.InjectDefaultPrompt(default_prompt),
+             *data_config.data_transforms.inputs,
+             transforms.Normalize(
+-                norm_stats, use_quantiles=data_config.use_quantile_norm
++                native_norm_stats, use_quantiles=data_config.use_quantile_norm
+             ),
+             *data_config.model_transforms.inputs,
+         ],
+         output_transforms=[
+             *data_config.model_transforms.outputs,
+             transforms.Unnormalize(
+-                norm_stats, use_quantiles=data_config.use_quantile_norm
++                native_norm_stats, use_quantiles=data_config.use_quantile_norm
+             ),
+             *data_config.data_transforms.outputs,
+             *repack_transforms.outputs,
+         ],
+     )
+ 
++    model._openpi_checkpoint_assets = build_checkpoint_assets(
++        config_name=str(config_name),
++        norm_stats=norm_stats,
++        asset_ids=[data_config.asset_id, get_openpi_config(config_name).data.repo_id],
++        parameter_precision=parameter_precision,
++        lerobot_compatible=lerobot_compatible,
++        action_horizon=int(actor_model_config.action_horizon),
++        execute_horizon=min(
++            int(actor_model_config.action_chunk), int(actor_model_config.action_horizon)
++        ),
++        action_dim=int(actor_model_config.action_env_dim),
++    )
+     return model
+diff --git a/rlinf/models/embodiment/openpi_cfg/openpi_cfg_action_model.py b/rlinf/models/embodiment/openpi_cfg/openpi_cfg_action_model.py
+index 60ddf9dc..f6d75db5 100644
+--- a/rlinf/models/embodiment/openpi_cfg/openpi_cfg_action_model.py
++++ b/rlinf/models/embodiment/openpi_cfg/openpi_cfg_action_model.py
+@@ -168,6 +168,7 @@ class OpenPi0Config(Pi0Config):
+     action_env_dim: int = 7
+     num_steps: int = 10
+     train_expert_only: bool = False
++    sft_image_augmentation: bool = True
+ 
+     cfgrl_guidance_scale: float = 1.0
+     unconditional_prob: float = 0.3
+@@ -219,10 +220,12 @@ class OpenPi0ForCFGActionPrediction(BasePolicy, PI0Pytorch):
+ 
+     @property
+     def _no_split_names(self) -> list[str]:
++        # PaliGemma ties lm_head.weight to language_model.embed_tokens.weight.
++        # CFG calls the embedding directly and never calls lm_head, so both
++        # aliases must stay in the root FSDP unit to be unsharded together.
+         return [
+             "action_in_proj",
+             "action_out_proj",
+-            "lm_head",
+             # --pi0 only--
+             "state_proj",
+             "action_time_mlp_in",
+@@ -290,19 +293,27 @@ class OpenPi0ForCFGActionPrediction(BasePolicy, PI0Pytorch):
+                     lambda x: x.transpose(1, 2, 0) if len(x.shape) == 3 else x,
+                     sample,
+                 )
++            sample["prompt"] = obs["prompt"][i] if first_process else "xxxx"
++            # Capture normalized state at the tokenizer, before PadStatesAndActions.
++            transformed_sample = sample
++            guidance_state = None
++            for transform in self._input_transform.transforms:
++                if transform is self._tokenize_transform:
++                    guidance_state = transformed_sample.get("state")
++                transformed_sample = transform(transformed_sample)
+             if first_process:
+-                sample["prompt"] = obs["prompt"][i]
+-                positive_guidance_prompt = obs["positive_guidance_prompt"][i]
+                 positive_guidance_dict = self._tokenize_transform(
+-                    {"prompt": positive_guidance_prompt}
++                    {
++                        "prompt": obs["positive_guidance_prompt"][i],
++                        "state": guidance_state,
++                    }
+                 )
+-                negative_guidance_prompt = obs["negative_guidance_prompt"][i]
+                 negative_guidance_dict = self._tokenize_transform(
+-                    {"prompt": negative_guidance_prompt}
++                    {
++                        "prompt": obs["negative_guidance_prompt"][i],
++                        "state": guidance_state,
++                    }
+                 )
+-            else:
+-                sample["prompt"] = "xxxx"
+-            transformed_sample = self._input_transform(sample)
+             if first_process:
+                 transformed_sample.update(
+                     {
+@@ -438,6 +449,12 @@ class OpenPi0ForCFGActionPrediction(BasePolicy, PI0Pytorch):
+             return self.action_out_proj(suffix_out)
+ 
+         v_t = self._apply_checkpoint(action_out_proj_func, suffix_out)
++        # LBench SFT supervises all predicted steps, but only physical channels.
++        if self.config.config_name == "pi05_lbench_joint":
++            dim = self.config.action_env_dim
++            if not 0 < dim <= u_t.shape[-1]:
++                raise ValueError("Invalid physical action dimension")
++            u_t, v_t = u_t[..., :dim], v_t[..., :dim]
+         per_element_loss = F.mse_loss(u_t, v_t, reduction="none")
+         flow_loss = per_element_loss.mean()
+         per_sample_loss = per_element_loss.detach().mean(dim=(-1, -2))
+@@ -625,6 +642,8 @@ class OpenPi0ForCFGActionPrediction(BasePolicy, PI0Pytorch):
+             processed_obs["observation/state"] = state
+         if env_obs["wrist_images"] is not None:
+             processed_obs["observation/wrist_image"] = env_obs["wrist_images"]
++        if env_obs.get("extra_view_images") is not None:
++            processed_obs["observation/extra_view_image"] = env_obs["extra_view_images"]
+         return processed_obs
+ 
+     def precision_processor(self, processed_obs):
+@@ -874,7 +893,7 @@ class OpenPi0ForCFGActionPrediction(BasePolicy, PI0Pytorch):
+     def _preprocess_observation(self, observation, *, train=True):
+         """Helper method to preprocess observation."""
+         part_observation = _preprocessing.preprocess_observation_pytorch(
+-            observation, train=train
++            observation, train=train and self.config.sft_image_augmentation
+         )
+         setattr(
+             part_observation,
+diff --git a/rlinf/models/embodiment/value_model/recap/checkpoint_utils.py b/rlinf/models/embodiment/value_model/recap/checkpoint_utils.py
+index 87a09123..790bd154 100644
+--- a/rlinf/models/embodiment/value_model/recap/checkpoint_utils.py
++++ b/rlinf/models/embodiment/value_model/recap/checkpoint_utils.py
+@@ -151,7 +151,11 @@ def build_input_transforms(
+     import openpi.models.model as _openpi_model
+     import openpi.transforms as _openpi_transforms
+ 
+-    from rlinf.models.embodiment.openpi.policies import franka_policy, libero_policy
++    from rlinf.models.embodiment.openpi.policies import (
++        franka_policy,
++        lbench_policy,
++        libero_policy,
++    )
+ 
+     _mt_map = {
+         "pi0": _openpi_model.ModelType.PI0,
+@@ -162,7 +166,14 @@ def build_input_transforms(
+ 
+     input_transforms = []
+ 
+-    if env_type == "libero":
++    if env_type == "lbench":
++        input_transforms.append(_openpi_transforms.InjectDefaultPrompt(default_prompt))
++        input_transforms.append(
++            lbench_policy.LBenchInputs(
++                model_type=model_type_enum, preserve_float_images=True
++            )
++        )
++    elif env_type == "libero":
+         input_transforms.append(_openpi_transforms.InjectDefaultPrompt(default_prompt))
+         input_transforms.append(libero_policy.LiberoInputs(model_type=model_type_enum))
+ 
+diff --git a/rlinf/models/embodiment/value_model/recap/modeling_critic.py b/rlinf/models/embodiment/value_model/recap/modeling_critic.py
+index 39d058d0..f752199e 100644
+--- a/rlinf/models/embodiment/value_model/recap/modeling_critic.py
++++ b/rlinf/models/embodiment/value_model/recap/modeling_critic.py
+@@ -202,7 +202,11 @@ class ValueCriticModel(nn.Module):
+ 
+     @property
+     def _no_split_names(self) -> list[str]:
+-        return ["lm_head", "cls_embedding"]
++        # Gemma3 ties lm_head.weight to model.embed_tokens.weight. RECAP calls
++        # the embedding directly and never calls lm_head, so wrapping lm_head
++        # alone leaves that shared weight sharded during the embedding lookup.
++        # Keep both aliases in the root FSDP unit.
++        return ["cls_embedding"]
+ 
+     def gradient_checkpointing_enable(self):
+         self.gradient_checkpointing_enabled = True
+diff --git a/rlinf/workers/sft/fsdp_cfg_worker.py b/rlinf/workers/sft/fsdp_cfg_worker.py
+index 3e72460c..a7ee273a 100644
+--- a/rlinf/workers/sft/fsdp_cfg_worker.py
++++ b/rlinf/workers/sft/fsdp_cfg_worker.py
+@@ -142,10 +142,9 @@ class FSDPCfgWorker(FSDPSftWorker):
+         import openpi.transforms as transforms
+ 
+         from rlinf.data.storage.lerobot import resolve_lerobot_dataset_root
+-        from rlinf.models.embodiment.openpi.dataconfig import get_openpi_config
++        from rlinf.models.embodiment.openpi_cfg.contract import resolve_cfg_contract
+ 
+         data_cfg = self.cfg.get("data", {})
+-        openpi_cfg = self.cfg.actor.model.openpi
+         advantage_tag = data_cfg.get("advantage_tag", None)
+ 
+         datasets_config = data_cfg.get("train_data_paths", [])
+@@ -156,16 +155,19 @@ class FSDPCfgWorker(FSDPSftWorker):
+             )
+ 
+         first_path = datasets_config[0]["dataset_path"]
+-        config = get_openpi_config(
+-            openpi_cfg.config_name,
+-            model_path=self.cfg.actor.model.model_path,
++        config, _ = resolve_cfg_contract(
++            self.cfg.actor.model,
+             batch_size=self.cfg.actor.micro_batch_size * self._world_size,
+             repo_id=first_path,
+         )
+         data_config = config.data.create(config.assets_dirs, config.model)
+ 
+         model_transforms = self._build_model_transforms(data_config)
+-        norm_stats = data_config.norm_stats or {}
++        norm_stats = (
++            None
++            if getattr(config.data, "lerobot_compatible", False)
++            else data_config.norm_stats or {}
++        )
+ 
+         datasets_with_weights = []
+         for ds_config in datasets_config:
+@@ -340,9 +342,13 @@ class FSDPCfgWorker(FSDPSftWorker):
+             sampler=sampler,
+             drop_last=True,
+             num_workers=num_workers,
+-            pin_memory=True,
+-            prefetch_factor=4 if num_workers > 0 else None,
+-            persistent_workers=num_workers > 0,
++            pin_memory=bool(data_cfg.get("pin_memory", True)),
++            prefetch_factor=(
++                int(data_cfg.get("prefetch_factor", 4)) if num_workers > 0 else None
++            ),
++            persistent_workers=(
++                bool(data_cfg.get("persistent_workers", True)) and num_workers > 0
++            ),
+         )
+ 
+     def run_training(self):
+@@ -354,7 +360,12 @@ class FSDPCfgWorker(FSDPSftWorker):
+                     self.load_optimizer(self.device)
+ 
+             self.model.train()
+-            if hasattr(self.model, "gradient_checkpointing_disable"):
++            # Disable OpenPI's outer checkpointing only when it is enabled.
++            # Gemma enables its own layer checkpointing during forward; do not
++            # reset that state and print disable/enable messages every step.
++            if hasattr(self.model, "gradient_checkpointing_disable") and getattr(
++                self.model, "gradient_checkpointing_enabled", True
++            ):
+                 self.model.gradient_checkpointing_disable()
+ 
+             assert (
+diff --git a/rlinf/workers/sft/fsdp_value_sft_worker.py b/rlinf/workers/sft/fsdp_value_sft_worker.py
+index 06b310bb..2ff378b2 100644
+--- a/rlinf/workers/sft/fsdp_value_sft_worker.py
++++ b/rlinf/workers/sft/fsdp_value_sft_worker.py
+@@ -552,6 +552,20 @@ class FSDPValueSftWorker(FSDPModelManager, Worker):
+                 train_metrics, op=torch.distributed.ReduceOp.AVG
+             )
+ 
++            if self.cfg.actor.get("log_memory_usage", False):
++                import psutil
++
++                memory_metrics = {
++                    "memory/cpu_rss_gib": psutil.Process().memory_info().rss / 2**30,
++                    "memory/gpu_allocated_gib": torch.cuda.memory_allocated(self.device)
++                    / 2**30,
++                    "memory/gpu_reserved_gib": torch.cuda.memory_reserved(self.device)
++                    / 2**30,
++                }
++                train_metrics.update(
++                    all_reduce_dict(memory_metrics, op=torch.distributed.ReduceOp.MAX)
++                )
++
+             self.lr_scheduler.step()
+ 
+             if self.cfg.actor.get("enable_offload", False):
+diff --git a/rlinf/workers/sft/fsdp_vla_sft_worker.py b/rlinf/workers/sft/fsdp_vla_sft_worker.py
+index 14c5a65c..69862b1b 100644
+--- a/rlinf/workers/sft/fsdp_vla_sft_worker.py
++++ b/rlinf/workers/sft/fsdp_vla_sft_worker.py
+@@ -35,10 +35,10 @@ from rlinf.workers.sft.fsdp_sft_worker import FSDPSftWorker
+ def _sft_forward_kwargs(model_type: SupportedModel) -> dict[str, bool]:
+     """Return model-specific arguments for the offline VLA SFT forward."""
+     if model_type == SupportedModel.OPENPI:
+-        # OpenPI pads actions to its internal 32-D width. Restrict the loss to
+-        # the configured temporal chunk and physical environment dimensions,
+-        # matching LeRobot and RLinf's DAgger SFT path.
+-        return {"use_action_chunk_loss": True}
++        # Supervise every predicted step, even when inference executes a
++        # shorter chunk. Only exclude the padded action channels, matching
++        # LeRobot's offline SFT loss. DAgger keeps its execution-chunk mask.
++        return {"use_action_dim_loss": True}
+     return {}
+ 
+ 
+diff --git a/tests/unit_tests/test_openpi_checkpoint_assets.py b/tests/unit_tests/test_openpi_checkpoint_assets.py
+index d9a18d5e..f9f2b3af 100644
+--- a/tests/unit_tests/test_openpi_checkpoint_assets.py
++++ b/tests/unit_tests/test_openpi_checkpoint_assets.py
+@@ -290,6 +290,85 @@ def test_equal_external_stats_selects_bundled_and_ignores_json_layout(tmp_path):
+     assert selected == (checkpoint / "exact/norm_stats.json").resolve()
+ 
+ 
++def test_explicit_finetuning_norm_loads_weights_and_saves_new_stats(
++    tmp_path, tiny_loader
++):
++    checkpoint = tmp_path / "source"
++    assets.export_checkpoint_assets(_assets(), checkpoint)
++    _save_weights(checkpoint)
++    before = {str(p): p.read_bytes() for p in checkpoint.rglob("*.json")}
++    payload = _stats()
++    payload["state"]["q99"] = [2.0] * 8
++    payload["actions"]["q99"] = [4.0] * 8
++    external = _write_stats(tmp_path / "new_dataset", payload)
++    config = _config(checkpoint, external)
++    config.allow_norm_stats_override = True
++    model = tiny_loader(config)
++    torch.testing.assert_close(
++        model.paligemma_with_expert.weight, torch.tensor([1.0001]), rtol=0, atol=0
++    )
++    np.testing.assert_array_equal(
++        model._input_transform({"state": np.ones(8, np.float32)})["state"],
++        np.zeros(8, np.float32),
++    )
++    np.testing.assert_array_equal(
++        model._output_transform(
++            {
++                "actions": np.zeros((50, 8), np.float32),
++                "state": np.zeros(8, np.float32),
++            }
++        )["actions"],
++        np.full((50, 8), 2.0, np.float32),
++    )
++    assert before == {str(p): p.read_bytes() for p in checkpoint.rglob("*.json")}
++    destination = tmp_path / "finetuned"
++    assets.export_checkpoint_assets(model._openpi_checkpoint_assets, destination)
++    _save_weights(destination, model.state_dict())
++    restored = tiny_loader(_config(destination, external))
++    assert restored._openpi_checkpoint_assets["norm_stats"]["norm_stats"] == payload
++    with pytest.raises(ValueError, match="differs from checkpoint"):
++        tiny_loader(_config(destination, checkpoint / "exact/norm_stats.json"))
++
++
++def test_finetuning_override_requires_explicit_stats(tmp_path):
++    with pytest.raises(ValueError, match="requires an explicit norm_stats_path"):
++        assets.resolve_checkpoint_norm_stats(
++            tmp_path, None, allow_explicit_override=True
++        )
++
++
++def test_finetuning_override_rejects_non_finite_external_stats(tmp_path):
++    checkpoint = tmp_path / "source"
++    assets.export_checkpoint_assets(_assets(), checkpoint)
++    payload = _stats()
++    payload["actions"]["q99"][0] = float("nan")
++    external = _write_stats(tmp_path / "external", payload)
++    with pytest.raises(ValueError, match="differs from checkpoint"):
++        assets.resolve_checkpoint_norm_stats(
++            checkpoint, external, allow_explicit_override=True
++        )
++
++
++def test_finetuning_override_does_not_hide_corrupt_checkpoint_assets(tmp_path):
++    checkpoint = tmp_path / "source"
++    assets.export_checkpoint_assets(_assets(), checkpoint)
++    external = _write_stats(tmp_path / "external")
++    bundled_alias = checkpoint / "lbench/lbench_multitask_joint/norm_stats.json"
++    payload = _stats()
++    payload["actions"]["q99"][0] = 5.0
++    bundled_alias.write_text(json.dumps(payload))
++    with pytest.raises(ValueError, match="differs from checkpoint"):
++        assets.resolve_checkpoint_norm_stats(
++            checkpoint, external, allow_explicit_override=True
++        )
++    bundled_alias.unlink()
++    (checkpoint / "actor/lbench/lbench_multitask_joint/norm_stats.json").unlink()
++    with pytest.raises(FileNotFoundError, match="asset is missing"):
++        assets.resolve_checkpoint_norm_stats(
++            checkpoint, external, allow_explicit_override=True
++        )
++
++
+ def test_legacy_without_manifest_accepts_external_and_keeps_legacy_precision(
+     tmp_path, tiny_loader
+ ):
+diff --git a/tests/unit_tests/test_openpi_sft_contract.py b/tests/unit_tests/test_openpi_sft_contract.py
+index 571c76cb..a7e5e29e 100644
+--- a/tests/unit_tests/test_openpi_sft_contract.py
++++ b/tests/unit_tests/test_openpi_sft_contract.py
+@@ -12,12 +12,85 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++import pytest
++import torch
++from openpi.models import model as observation_model
++from openpi.models_pytorch import pi0_pytorch
++
+ from rlinf.config import SupportedModel
++from rlinf.models.embodiment.openpi.openpi_action_model import (
++    OpenPi0Config,
++    OpenPi0ForRLActionPrediction,
++)
+ from rlinf.workers.sft.fsdp_vla_sft_worker import _sft_forward_kwargs
+ 
+ 
+-def test_offline_openpi_sft_enables_valid_action_chunk_loss():
+-    assert _sft_forward_kwargs(SupportedModel.OPENPI) == {"use_action_chunk_loss": True}
++@pytest.mark.parametrize("execution_horizon", [20, 50])
++def test_offline_openpi_sft_trains_full_horizon_without_padded_dims(
++    monkeypatch, execution_horizon
++):
++    model, observation = _small_sft_model(execution_horizon)
++
++    def forward(self, observation, actions):
++        return self.predictions.square()
++
++    monkeypatch.setattr(pi0_pytorch.PI0Pytorch, "forward", forward)
++    with torch.no_grad():
++        model.predictions[:, :20, :8] = 1
++        model.predictions[:, 20:, :8] = 3
++        model.predictions[:, :, 8:] = 100
++    loss = model.sft_forward(
++        (observation, torch.zeros(1, 50, 32)),
++        **_sft_forward_kwargs(SupportedModel.OPENPI),
++    )
++    torch.testing.assert_close(loss, torch.tensor(5.8))
++    loss.backward()
++    assert torch.all(model.predictions.grad[:, 20:, :8] != 0)
++    assert torch.count_nonzero(model.predictions.grad[:, :, 8:]) == 0
++    model._output_transform = lambda sample: {"actions": sample["actions"][..., :8]}
++    executed = model.output_transform({"actions": model.predictions})["actions"]
++    assert executed.shape == (1, execution_horizon, 8)
++    torch.testing.assert_close(
++        executed, model.predictions.detach()[:, :execution_horizon, :8]
++    )
++
++
++def test_dagger_chunk_loss_still_excludes_unexecuted_actions(monkeypatch):
++    model, observation = _small_sft_model(20)
++
++    def forward(self, observation, actions):
++        return self.predictions.square()
++
++    monkeypatch.setattr(pi0_pytorch.PI0Pytorch, "forward", forward)
++    loss = model.sft_forward(
++        (observation, torch.zeros(1, 50, 32)), use_action_chunk_loss=True
++    )
++    loss.backward()
++    assert torch.all(model.predictions.grad[:, :20, :8] != 0)
++    assert torch.count_nonzero(model.predictions.grad[:, 20:, :]) == 0
++    assert torch.count_nonzero(model.predictions.grad[:, :, 8:]) == 0
++
++
++def _small_sft_model(execution_horizon):
++    # Exercise the real SFT wrapper without allocating PaliGemma weights.
++    model = OpenPi0ForRLActionPrediction.__new__(OpenPi0ForRLActionPrediction)
++    torch.nn.Module.__init__(model)
++    model.predictions = torch.nn.Parameter(torch.ones(1, 50, 32))
++    model.config = OpenPi0Config(
++        pi05=True,
++        action_horizon=50,
++        action_chunk=execution_horizon,
++        action_env_dim=8,
++    )
++    model.gradient_checkpointing_enabled = True
++    observation = observation_model.Observation(
++        images={"base_0_rgb": torch.zeros(1, 3, 4, 4)},
++        image_masks={"base_0_rgb": torch.ones(1, dtype=torch.bool)},
++        state=torch.zeros(1, 32),
++        tokenized_prompt=torch.tensor([[1, 2]]),
++        tokenized_prompt_mask=torch.ones(1, 2, dtype=torch.bool),
++    )
++    return model, observation
+ 
+ 
+ def test_other_vla_sft_models_do_not_receive_openpi_only_argument():

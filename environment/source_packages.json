@@ -1,0 +1,22 @@
+{
+  "training_packages": {
+    "rlinf-openpi": {
+      "version": "0.1.1"
+    },
+    "openpi-client": {
+      "version": "0.1.2"
+    },
+    "lerobot": {
+      "version": "0.3.3"
+    },
+    "rlinf-transformer-openpi": {
+      "version": "4.53.2"
+    },
+    "transformers": {
+      "version": "4.57.6"
+    }
+  },
+  "lerobot_preparation_commit": "15934d8d08f3c62ec730fb814087619e6c987995",
+  "lerobot_preparation_status": " T docs/source/contributing.md\n T src/lerobot/policies/act/README.md\n T src/lerobot/policies/diffusion/README.md\n T src/lerobot/policies/groot/README.md\n M src/lerobot/policies/pi05/modeling_pi05.py\n T src/lerobot/policies/smolvla/README.md\n T src/lerobot/policies/tdmpc/README.md\n T src/lerobot/policies/vqbet/README.md\n T src/lerobot/policies/wall_x/README.md\n M src/lerobot/processor/relative_action_processor.py\n T src/lerobot/robots/earthrover_mini_plus/earthrover_mini_plus.mdx\n T src/lerobot/robots/hope_jr/hope_jr.mdx\n T src/lerobot/robots/koch_follower/koch.mdx\n T src/lerobot/robots/lekiwi/lekiwi.mdx\n T src/lerobot/robots/so_follower/so100.md\n T src/lerobot/robots/so_follower/so101.md\n T src/lerobot/teleoperators/so_leader/so100.md\n T src/lerobot/teleoperators/so_leader/so101.md\n",
+  "training_python": "3.11.14 (main, Feb 12 2026, 00:42:50) [Clang 21.1.4 ]"
+}

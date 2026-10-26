@@ -1,0 +1,325 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-labelledby="title desc">
+  <title id="title">LBench × LeRobot × RLinf 多环境训练系统</title>
+  <desc id="desc">展示离线数据、Pi0.5 SFT、LeRobot gRPC 评测、RLinf 多环境评测和 PPO 强化微调的数据流与进程隔离边界。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050816"/>
+      <stop offset="0.5" stop-color="#0a1024"/>
+      <stop offset="1" stop-color="#060913"/>
+    </linearGradient>
+    <radialGradient id="haloCyan">
+      <stop offset="0" stop-color="#20e3ff" stop-opacity=".19"/>
+      <stop offset="1" stop-color="#20e3ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="haloPurple">
+      <stop offset="0" stop-color="#a878ff" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#a878ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1ee6ff"/>
+      <stop offset="1" stop-color="#3185ff"/>
+    </linearGradient>
+    <linearGradient id="purple" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c36cff"/>
+      <stop offset="1" stop-color="#715dff"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffd166"/>
+      <stop offset="1" stop-color="#ff7a59"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4df7a2"/>
+      <stop offset="1" stop-color="#00b894"/>
+    </linearGradient>
+    <linearGradient id="pink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff70ba"/>
+      <stop offset="1" stop-color="#ff3d71"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#6f8bbd" stroke-opacity=".06" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity=".45"/>
+    </filter>
+    <filter id="glowCyan" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowPurple" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrowCyan" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#20dcff"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#a878ff"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#ffae62"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#42e6a0"/>
+    </marker>
+    <style>
+      text { font-family: Inter, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; }
+      .title { fill:#f5f8ff; font-size:34px; font-weight:750; letter-spacing:.5px; }
+      .subtitle { fill:#8da2c9; font-size:15px; }
+      .zone-title { fill:#eef4ff; font-size:18px; font-weight:700; }
+      .zone-sub { fill:#7f95bb; font-size:12px; letter-spacing:.5px; }
+      .node-title { fill:#f4f7ff; font-size:14px; font-weight:650; }
+      .node-sub { fill:#91a5c9; font-size:11px; }
+      .tiny { fill:#90a5c8; font-size:10px; }
+      .chip { fill:#b9c8e4; font-size:11px; font-weight:600; }
+      .panel { fill:#0d1429; fill-opacity:.90; stroke:#26395e; stroke-width:1.2; }
+      .node { fill:#101a34; stroke:#324b76; stroke-width:1.1; }
+      .cyan-node { fill:#0c2035; stroke:#1dcbe9; }
+      .purple-node { fill:#191536; stroke:#9b6bff; }
+      .orange-node { fill:#271c1e; stroke:#ff9b5e; }
+      .green-node { fill:#0d261f; stroke:#36dc92; }
+      .pink-node { fill:#281428; stroke:#f660ad; }
+      .flow { fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-width:2.2; }
+      .pulse { stroke-dasharray:8 10; animation:dash 2.2s linear infinite; }
+      .pulse-slow { stroke-dasharray:5 10; animation:dash 3.8s linear infinite; }
+      .blink { animation:blink 2.2s ease-in-out infinite; }
+      @keyframes dash { to { stroke-dashoffset:-36; } }
+      @keyframes blink { 50% { opacity:.38; } }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1050" fill="url(#bg)"/>
+  <rect width="1600" height="1050" fill="url(#grid)"/>
+  <ellipse cx="310" cy="290" rx="420" ry="340" fill="url(#haloCyan)"/>
+  <ellipse cx="885" cy="500" rx="500" ry="480" fill="url(#haloPurple)"/>
+
+  <!-- Header -->
+  <g transform="translate(52 48)">
+    <rect width="7" height="61" rx="3.5" fill="url(#cyan)" filter="url(#glowCyan)"/>
+    <text x="24" y="31" class="title">LBench × LeRobot × RLinf</text>
+    <text x="25" y="56" class="subtitle">PI0.5 · MULTI-ENV EVALUATION · DATA FLYWHEEL · PPO FINE-TUNING</text>
+  </g>
+  <g transform="translate(1070 54)">
+    <rect width="132" height="28" rx="14" fill="#0f2435" stroke="#20d6f4" stroke-opacity=".7"/>
+    <circle cx="18" cy="14" r="4" fill="#38e7a1" class="blink"/>
+    <text x="31" y="18" class="chip">EDITABLE SVG</text>
+    <rect x="144" width="150" height="28" rx="14" fill="#211637" stroke="#a878ff" stroke-opacity=".7"/>
+    <text x="162" y="18" class="chip">2 ISOLATED ENVS</text>
+    <rect x="306" width="174" height="28" rx="14" fill="#2b1d1b" stroke="#ff9b5e" stroke-opacity=".7"/>
+    <text x="324" y="18" class="chip">8 ISAAC WORKERS</text>
+  </g>
+
+  <!-- Zone 1: Offline data -->
+  <g filter="url(#shadow)">
+    <rect x="45" y="135" width="430" height="560" rx="22" class="panel"/>
+    <path d="M45 157 Q45 135 67 135 H453 Q475 135 475 157 V194 H45 Z" fill="#0e2037"/>
+    <text x="70" y="164" class="zone-title">01 · 数据与监督微调</text>
+    <text x="70" y="184" class="zone-sub">OFFLINE DATA PLANE</text>
+  </g>
+
+  <g>
+    <rect x="75" y="225" width="155" height="72" rx="14" class="orange-node"/>
+    <circle cx="99" cy="249" r="9" fill="url(#orange)"/>
+    <text x="117" y="254" class="node-title">专家 / 回流 LMDB</text>
+    <text x="99" y="278" class="node-sub">轨迹 · 视频 · success</text>
+
+    <rect x="287" y="225" width="155" height="72" rx="14" class="node"/>
+    <text x="365" y="253" text-anchor="middle" class="node-title">转换 · 筛选 · 合并</text>
+    <text x="365" y="278" text-anchor="middle" class="node-sub">v2.1 / v3.0</text>
+    <path d="M230 261 H279" class="flow pulse" stroke="#ffae62" marker-end="url(#arrowOrange)"/>
+
+    <rect x="142" y="345" width="235" height="88" rx="18" class="cyan-node" filter="url(#glowCyan)"/>
+    <text x="260" y="377" text-anchor="middle" class="node-title">LeRobot · 8 Tasks</text>
+    <text x="260" y="400" text-anchor="middle" class="node-sub">3 cameras · state[8] · action[8]</text>
+    <text x="260" y="418" text-anchor="middle" class="tiny">RLinf v2.1 / standalone LeRobot v3 copy</text>
+    <path d="M365 297 V321 Q365 329 355 332 L332 341" class="flow pulse" stroke="#20dcff" marker-end="url(#arrowCyan)"/>
+
+    <rect x="75" y="489" width="164" height="80" rx="15" class="pink-node"/>
+    <text x="157" y="520" text-anchor="middle" class="node-title">LeRobot SFT</text>
+    <text x="157" y="543" text-anchor="middle" class="node-sub">保留原有训练能力</text>
+
+    <rect x="280" y="489" width="162" height="80" rx="15" class="purple-node"/>
+    <text x="361" y="520" text-anchor="middle" class="node-title">RLinf Pi0.5 SFT</text>
+    <text x="361" y="543" text-anchor="middle" class="node-sub">OpenPI · FSDP</text>
+
+    <path d="M226 433 L174 482" class="flow pulse-slow" stroke="#ff70ba" marker-end="url(#arrowPurple)"/>
+    <path d="M304 433 L345 482" class="flow pulse-slow" stroke="#a878ff" marker-end="url(#arrowPurple)"/>
+
+    <rect x="75" y="607" width="164" height="52" rx="13" class="pink-node"/>
+    <text x="157" y="638" text-anchor="middle" class="node-title">LeRobot checkpoint</text>
+    <rect x="280" y="607" width="162" height="52" rx="13" class="purple-node"/>
+    <text x="361" y="638" text-anchor="middle" class="node-title">Pi0.5 SFT checkpoint</text>
+    <path d="M157 569 V599" class="flow" stroke="#ff70ba" marker-end="url(#arrowPurple)"/>
+    <path d="M361 569 V599" class="flow" stroke="#a878ff" marker-end="url(#arrowPurple)"/>
+
+    <rect x="317" y="449" width="112" height="25" rx="12" fill="#102738" stroke="#20d6f4" stroke-opacity=".65"/>
+    <text x="373" y="466" text-anchor="middle" class="tiny">shared norm stats</text>
+  </g>
+
+  <!-- Zone 2: RLinf -->
+  <g filter="url(#shadow)">
+    <rect x="515" y="135" width="565" height="700" rx="22" class="panel"/>
+    <path d="M515 157 Q515 135 537 135 H1058 Q1080 135 1080 157 V194 H515 Z" fill="#1a1537"/>
+    <text x="540" y="164" class="zone-title">02 · RLinf 模型与控制平面</text>
+    <text x="540" y="184" class="zone-sub">RAY · OPENPI · PPO · MODEL GPU POOL</text>
+  </g>
+
+  <g>
+    <rect x="550" y="222" width="495" height="58" rx="15" class="node"/>
+    <circle cx="579" cy="251" r="10" fill="url(#purple)" filter="url(#glowPurple)"/>
+    <text x="600" y="247" class="node-title">Ray Driver / Global Orchestrator</text>
+    <text x="600" y="266" class="node-sub">配置组合 · rank 编排 · checkpoint · metrics</text>
+
+    <text x="551" y="316" class="zone-sub">DISTRIBUTED MODEL RANKS</text>
+    <g>
+      <rect x="550" y="332" width="112" height="58" rx="12" class="purple-node"/>
+      <rect x="674" y="332" width="112" height="58" rx="12" class="purple-node"/>
+      <rect x="798" y="332" width="112" height="58" rx="12" class="purple-node"/>
+      <rect x="922" y="332" width="123" height="58" rx="12" class="purple-node"/>
+      <text x="606" y="358" text-anchor="middle" class="node-title">GPU rank 0</text>
+      <text x="606" y="376" text-anchor="middle" class="tiny">coordinator</text>
+      <text x="730" y="358" text-anchor="middle" class="node-title">GPU rank 1</text>
+      <text x="730" y="376" text-anchor="middle" class="tiny">actor/rollout</text>
+      <text x="854" y="358" text-anchor="middle" class="node-title">GPU rank 2</text>
+      <text x="854" y="376" text-anchor="middle" class="tiny">actor/rollout</text>
+      <text x="984" y="358" text-anchor="middle" class="node-title">GPU rank 3</text>
+      <text x="984" y="376" text-anchor="middle" class="tiny">actor/rollout</text>
+    </g>
+    <path d="M797 280 V323" class="flow pulse" stroke="#a878ff" marker-end="url(#arrowPurple)"/>
+
+    <rect x="550" y="436" width="300" height="116" rx="17" class="purple-node" filter="url(#glowPurple)"/>
+    <text x="700" y="466" text-anchor="middle" class="node-title">OpenPI Pi0.5 · Actor / Rollout</text>
+    <text x="700" y="491" text-anchor="middle" class="node-sub">生成 horizon 50 · 执行 chunk 20</text>
+    <g transform="translate(577 510)">
+      <rect width="72" height="24" rx="12" fill="#2b1e50"/><text x="36" y="16" text-anchor="middle" class="tiny">3 cameras</text>
+      <rect x="80" width="72" height="24" rx="12" fill="#2b1e50"/><text x="116" y="16" text-anchor="middle" class="tiny">state[8]</text>
+      <rect x="160" width="90" height="24" rx="12" fill="#2b1e50"/><text x="205" y="16" text-anchor="middle" class="tiny">instruction</text>
+    </g>
+
+    <rect x="880" y="436" width="165" height="116" rx="17" class="green-node"/>
+    <text x="962" y="467" text-anchor="middle" class="node-title">GAE → PPO</text>
+    <text x="962" y="490" text-anchor="middle" class="node-sub">GAE once · PPO epoch 4</text>
+    <text x="962" y="512" text-anchor="middle" class="node-sub">clipped policy + value</text>
+    <rect x="912" y="522" width="101" height="21" rx="10" fill="#133d30"/>
+    <text x="962" y="537" text-anchor="middle" class="tiny">patch sync ↺</text>
+    <path d="M880 475 H860" class="flow pulse" stroke="#42e6a0" marker-end="url(#arrowGreen)"/>
+    <path d="M850 521 H872" class="flow pulse-slow" stroke="#42e6a0" marker-end="url(#arrowGreen)"/>
+
+    <rect x="550" y="604" width="495" height="170" rx="18" class="cyan-node"/>
+    <text x="575" y="636" class="node-title">EnvGroup / EnvWorker ranks</text>
+    <text x="575" y="658" class="node-sub">LBenchEnv adapter · balanced round-robin · partial reset</text>
+    <g transform="translate(575 681)">
+      <rect width="135" height="57" rx="12" class="node"/>
+      <text x="67" y="24" text-anchor="middle" class="node-title">Observation Map</text>
+      <text x="67" y="43" text-anchor="middle" class="tiny">RGB + state + prompt</text>
+      <rect x="155" width="135" height="57" rx="12" class="node"/>
+      <text x="222" y="24" text-anchor="middle" class="node-title">Action Map</text>
+      <text x="222" y="43" text-anchor="middle" class="tiny">joint[7] + gripper</text>
+      <rect x="310" width="135" height="57" rx="12" class="node"/>
+      <text x="377" y="24" text-anchor="middle" class="node-title">Reward Adapter</text>
+      <text x="377" y="43" text-anchor="middle" class="tiny">LIBERO sparse success</text>
+    </g>
+    <path d="M700 552 V594" class="flow pulse" stroke="#20dcff" marker-end="url(#arrowCyan)"/>
+    <path d="M962 604 V560" class="flow pulse" stroke="#42e6a0" marker-end="url(#arrowGreen)"/>
+
+    <rect x="557" y="789" width="480" height="28" rx="14" fill="#111c32" stroke="#51698f"/>
+    <text x="797" y="808" text-anchor="middle" class="chip">RLinf venv  ⟷  Unix Domain Socket Boundary  ⟷  Isaac conda env</text>
+  </g>
+
+  <!-- Zone 3: LBench / Isaac -->
+  <g filter="url(#shadow)">
+    <rect x="1120" y="135" width="435" height="700" rx="22" class="panel"/>
+    <path d="M1120 157 Q1120 135 1142 135 H1533 Q1555 135 1555 157 V194 H1120 Z" fill="#2b1c1b"/>
+    <text x="1145" y="164" class="zone-title">03 · LBench / Isaac 仿真平面</text>
+    <text x="1145" y="184" class="zone-sub">ONE PROCESS · ONE SIMULATIONAPP · ONE ENV</text>
+  </g>
+
+  <g>
+    <rect x="1155" y="220" width="365" height="75" rx="16" class="orange-node"/>
+    <circle cx="1185" cy="257" r="10" fill="url(#orange)"/>
+    <text x="1205" y="252" class="node-title">SimBoxSubprocVectorEnv</text>
+    <text x="1205" y="273" class="node-sub">异步广播 reset / step · 稳定 env-id 顺序</text>
+
+    <text x="1156" y="333" class="zone-sub">8 INDEPENDENT ISAAC WORKERS</text>
+    <g>
+      <rect x="1155" y="350" width="170" height="74" rx="13" class="orange-node"/>
+      <rect x="1350" y="350" width="170" height="74" rx="13" class="orange-node"/>
+      <rect x="1155" y="443" width="170" height="74" rx="13" class="orange-node"/>
+      <rect x="1350" y="443" width="170" height="74" rx="13" class="orange-node"/>
+      <rect x="1155" y="536" width="170" height="74" rx="13" class="orange-node"/>
+      <rect x="1350" y="536" width="170" height="74" rx="13" class="orange-node"/>
+      <rect x="1155" y="629" width="170" height="74" rx="13" class="orange-node"/>
+      <rect x="1350" y="629" width="170" height="74" rx="13" class="orange-node"/>
+      <g class="node-title" text-anchor="middle">
+        <text x="1240" y="380">Isaac worker 0</text><text x="1435" y="380">Isaac worker 1</text>
+        <text x="1240" y="473">Isaac worker 2</text><text x="1435" y="473">Isaac worker 3</text>
+        <text x="1240" y="566">Isaac worker 4</text><text x="1435" y="566">Isaac worker 5</text>
+        <text x="1240" y="659">Isaac worker 6</text><text x="1435" y="659">Isaac worker 7</text>
+      </g>
+      <g class="tiny" text-anchor="middle">
+        <text x="1240" y="402">task · seed · episode</text><text x="1435" y="402">task · seed · episode</text>
+        <text x="1240" y="495">task · seed · episode</text><text x="1435" y="495">task · seed · episode</text>
+        <text x="1240" y="588">task · seed · episode</text><text x="1435" y="588">task · seed · episode</text>
+        <text x="1240" y="681">task · seed · episode</text><text x="1435" y="681">task · seed · episode</text>
+      </g>
+    </g>
+    <path d="M1337 295 V336" class="flow pulse" stroke="#ffae62" marker-end="url(#arrowOrange)"/>
+    <path d="M1337 336 C1290 330 1240 333 1240 342" class="flow" stroke="#ffae62"/>
+    <path d="M1337 336 C1385 330 1435 333 1435 342" class="flow" stroke="#ffae62"/>
+
+    <rect x="1155" y="739" width="365" height="57" rx="14" class="node"/>
+    <text x="1337" y="763" text-anchor="middle" class="node-title">progress · success/failure · done</text>
+    <text x="1337" y="783" text-anchor="middle" class="node-sub">episode length ≤ 1200 primitive steps</text>
+  </g>
+
+  <!-- Cross-zone RLinf <-> Isaac -->
+  <path d="M1045 680 C1085 680 1094 257 1147 257" class="flow pulse" stroke="#ffae62" marker-end="url(#arrowOrange)" filter="url(#glowCyan)"/>
+  <path d="M1155 768 C1095 768 1093 715 1045 715" class="flow pulse" stroke="#20dcff" marker-end="url(#arrowCyan)"/>
+  <text x="1098" y="651" text-anchor="middle" class="tiny">actions →</text>
+  <text x="1097" y="756" text-anchor="middle" class="tiny">← obs / reward / mask</text>
+
+  <!-- SFT checkpoint to model -->
+  <path d="M442 633 C482 633 480 494 542 494" class="flow pulse" stroke="#a878ff" marker-end="url(#arrowPurple)" filter="url(#glowPurple)"/>
+  <text x="494" y="616" text-anchor="middle" class="tiny">load</text>
+
+  <!-- LeRobot gRPC bypass lane -->
+  <path d="M239 633 C480 880 1165 888 1460 820" class="flow pulse-slow" stroke="#ff70ba" marker-end="url(#arrowPurple)"/>
+  <g transform="translate(495 844)">
+    <rect width="290" height="42" rx="21" class="pink-node"/>
+    <text x="145" y="18" text-anchor="middle" class="node-title">LeRobot / ResRL Policy Server</text>
+    <text x="145" y="34" text-anchor="middle" class="tiny">native evaluation path · gRPC</text>
+  </g>
+  <text x="963" y="871" text-anchor="middle" class="tiny">LeRobot 原有评测链路，不参与 RLinf PPO</text>
+
+  <!-- Bottom flywheel -->
+  <g filter="url(#shadow)">
+    <rect x="45" y="920" width="1510" height="88" rx="22" fill="#0b1825" stroke="#2acb91" stroke-opacity=".75"/>
+  </g>
+  <g>
+    <circle cx="85" cy="964" r="19" fill="url(#green)" filter="url(#glowCyan)"/>
+    <path d="M77 964 l6 6 11 -13" fill="none" stroke="#071a14" stroke-width="3" stroke-linecap="round"/>
+    <text x="117" y="956" class="node-title">DATA FLYWHEEL</text>
+    <text x="117" y="978" class="node-sub">并行采集 → 分片落盘 → 合并检查 → 下一轮 SFT</text>
+
+    <rect x="414" y="942" width="192" height="45" rx="13" class="green-node"/>
+    <text x="510" y="961" text-anchor="middle" class="node-title">CollectEpisode</text>
+    <text x="510" y="978" text-anchor="middle" class="tiny">async per-rank writer</text>
+    <rect x="681" y="942" width="207" height="45" rx="13" class="green-node"/>
+    <text x="784" y="961" text-anchor="middle" class="node-title">rank_r / id_n shards</text>
+    <text x="784" y="978" text-anchor="middle" class="tiny">pickle or version-matched LeRobot</text>
+    <rect x="963" y="942" width="192" height="45" rx="13" class="green-node"/>
+    <text x="1059" y="961" text-anchor="middle" class="node-title">Merge + Contract Check</text>
+    <text x="1059" y="978" text-anchor="middle" class="tiny">never overwrite source</text>
+    <rect x="1230" y="942" width="275" height="45" rx="13" class="cyan-node"/>
+    <text x="1367" y="961" text-anchor="middle" class="node-title">Next LeRobot Dataset Dₙ₊₁</text>
+    <text x="1367" y="978" text-anchor="middle" class="tiny">recompute norm stats · retrain</text>
+    <path d="M606 964 H673" class="flow pulse" stroke="#42e6a0" marker-end="url(#arrowGreen)"/>
+    <path d="M888 964 H955" class="flow pulse" stroke="#42e6a0" marker-end="url(#arrowGreen)"/>
+    <path d="M1155 964 H1222" class="flow pulse" stroke="#42e6a0" marker-end="url(#arrowGreen)"/>
+  </g>
+
+  <!-- Collection drop line -->
+  <path d="M797 774 V892 Q797 908 780 912 L530 937" class="flow pulse" stroke="#42e6a0" marker-end="url(#arrowGreen)"/>
+
+  <!-- Footer -->
+  <text x="1548" y="1035" text-anchor="end" class="tiny">CURRENT IMPLEMENTATION · LOGICAL ARCHITECTURE · GPU/ISAAC E2E VALIDATION PENDING</text>
+</svg>

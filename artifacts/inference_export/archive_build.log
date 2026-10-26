@@ -1,0 +1,63 @@
+Hashed README.txt
+Hashed assets/openpi_cache/big_vision/paligemma_tokenizer.model
+Hashed export_manifest.json
+Hashed inference_config.yaml
+Hashed inference_validation.json
+Hashed lbench/lbench_multitask_joint/norm_stats.json
+Hashed lerobot_episode_stats/norm_stats.json
+Hashed load_policy.py
+Hashed model_state_dict/full_weights.pt
+Hashed openpi_assets.json
+Hashed runtime_reference/rlinf/models/embodiment/openpi/__init__.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/checkpoint_assets.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/__init__.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/behavior_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/calvin_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/dual_franka_tcp_rot6d_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/franka_co_training_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/franka_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/gsenv_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/isaaclab_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/lbench_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/libero_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/maniskill_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/maniskill_rlt_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/metaworld_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/polaris_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/realworld_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/robocasa_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/dataconfig/robotwin_aloha_dataconfig.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/lerobot_transforms.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/openpi_action_model.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/__init__.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/aloha_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/behavior_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/calvin_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/dual_franka_tcp_rot6d_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/franka_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/gsenv_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/isaaclab_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/lbench_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/libero_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/maniskill_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/metaworld_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/realworld_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/policies/robocasa_policy.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/precision.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/rtc_guidance.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/transforms/__init__.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi/transforms/rigid_body_delta.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi_cfg/__init__.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi_cfg/contract.py
+Hashed runtime_reference/rlinf/models/embodiment/openpi_cfg/openpi_cfg_action_model.py
+Write: 0.70 GiB
+Write: 1.41 GiB
+Write: 2.11 GiB
+Write: 2.81 GiB
+Write: 3.50 GiB
+Write: 4.20 GiB
+Write: 4.90 GiB
+Write: 5.62 GiB
+Write: 6.33 GiB
+Write: 7.04 GiB
+Write: 7.74 GiB

@@ -1,0 +1,38 @@
+# LBench RECAP: shared prepared data and episode-weighted LeRobot norm.
+defaults:
+- lbench_recap_datasets@data
+- model/recap_value_model@advantage.model
+- _self_
+advantage:
+  value_checkpoint: ${oc.env:RECAP_VALUE_CHECKPOINT}
+  batch_size: 16
+  flush_interval: 64
+  num_dataloader_workers_per_gpu: 8
+  prefetch_factor: 2
+  video_decoder_cache_size: 3  # One bounded CPU decoder per camera per worker.
+  discount_next_value: true
+  positive_quantile: 0.3
+  tag: lbench_round1_fail300_n20_q30
+  returns_tag: lbench_round1_fail300
+  model:
+    critic_expert_variant: gemma_1m
+    tokenizer_path: /root/autodl-tmp/models/gemma-3-270m
+    siglip_path: /root/autodl-tmp/models/siglip2-so400m-patch14-224
+    gemma3_path: /root/autodl-tmp/models/gemma-3-270m
+data:
+  model_type: pi05
+  advantage_lookahead_step: 20
+  gamma: 1.0
+  robot_type: lbench
+distributed:
+  enabled: true
+  backend: nccl
+  timeout: 3600
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+  searchpath:
+  - file://${oc.env:REPO_PATH}/examples/offline_rl/config/
+  job:
+    chdir: false

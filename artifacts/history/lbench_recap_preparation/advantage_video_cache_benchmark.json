@@ -1,0 +1,21 @@
+{
+  "runs": [
+    {
+      "video_decoder_cache_size": 0,
+      "samples": 1024,
+      "seconds": 29.954359628260136,
+      "samples_per_second": 34.18534105579469,
+      "peak_gpu_allocated_gib": 2.011280059814453
+    },
+    {
+      "video_decoder_cache_size": 3,
+      "samples": 1024,
+      "seconds": 10.110812194645405,
+      "samples_per_second": 101.27771936484996,
+      "peak_gpu_allocated_gib": 2.011096954345703
+    }
+  ],
+  "outputs_exactly_equal": true,
+  "speedup": 2.962606668149142,
+  "note": "Single-GPU sample benchmark with the existing labeling job still running; includes DataLoader startup and temporary result flushing. No production labels written."
+}

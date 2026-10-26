@@ -1,0 +1,103 @@
+defaults:
+  - model/pi0_5@actor.model
+  - hybrid_engines/fsdp@actor.fsdp_config
+  - override hydra/job_logging: stdout
+  - _self_
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+  searchpath:
+    - file://${oc.env:EMBODIED_PATH}/config/
+
+cluster:
+  num_nodes: 1
+  component_placement:
+    actor,env,rollout: '0-3'
+
+runner:
+  task_type: sft
+  logger:
+    log_path: ${oc.env:LBENCH_SFT_BASE4_OUTPUT}
+    project_name: rlinf
+    experiment_name: lbench_sft_base_h20_4gpu
+    logger_backends: [tensorboard]
+  max_epochs: -1
+  max_steps: 30000
+  # This SFT worker does not implement environment evaluation.
+  val_check_interval: -1
+  save_interval: 5000
+  max_saved_checkpoints: 3
+  resume_dir: null
+
+data:
+  train_data_paths: ${oc.env:LBENCH_SFT_BASE4_DATASET}
+  num_workers: 2
+
+actor:
+  group_name: ActorGroup
+  training_backend: fsdp
+  # Four ranks x 16 samples, one micro-batch per optimizer update.
+  micro_batch_size: 16
+  global_batch_size: 64
+  enable_offload: false
+  seed: 1000
+  model:
+    model_path: ${oc.env:LBENCH_SFT_BASE4_CHECKPOINT}
+    model_type: openpi
+    precision: null
+    is_lora: false
+    num_action_chunks: 20
+    action_dim: 8
+    add_value_head: false
+    use_proprio: true
+    # Inference only; SFT samples a continuous flow time per example.
+    num_steps: 5
+    openpi:
+      config_name: pi05_lbench_joint
+      num_images_in_input: 3
+      action_horizon: 20
+      action_chunk: 20
+      action_env_dim: 8
+      num_steps: 5
+      train_expert_only: false
+      sft_image_augmentation: false
+      parameter_precision: float32
+      add_value_head: false
+    openpi_data:
+      repo_id: ${oc.env:LBENCH_SFT_BASE4_DATASET}
+      norm_stats_path: ${oc.env:LBENCH_SFT_BASE4_NORM_STATS}
+      lerobot_compatible: true
+  optim:
+    lr: 5.0e-5
+    value_lr: 1.0e-4
+    adam_beta1: 0.9
+    adam_beta2: 0.95
+    adam_eps: 1.0e-8
+    weight_decay: 0.01
+    clip_grad: 1.0
+    total_training_steps: 30000
+    lr_warmup_steps: 1000
+    lr_scheduler: lerobot_cosine
+    num_cycles: 0.5
+    min_lr: 5.0e-6
+  fsdp_config:
+    strategy: fsdp
+    sharding_strategy: full_shard
+    use_orig_params: true
+    gradient_checkpointing: true
+    cpu_offload: false
+    save_full_model_weights: true
+    mixed_precision:
+      param_dtype: fp32
+      reduce_dtype: fp32
+      buffer_dtype: fp32
+    amp_autocast:
+      enabled: true
+      precision: bf16
+
+reward:
+  use_reward_model: false
+critic:
+  use_critic_model: false

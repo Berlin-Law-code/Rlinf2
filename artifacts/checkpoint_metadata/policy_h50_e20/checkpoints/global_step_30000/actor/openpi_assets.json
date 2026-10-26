@@ -1,0 +1,18 @@
+{
+  "asset_ids": [
+    "lerobot_episode_stats",
+    "lbench/lbench_multitask_joint"
+  ],
+  "config_name": "pi05_lbench_joint",
+  "norm_stats": [
+    "lerobot_episode_stats/norm_stats.json",
+    "lbench/lbench_multitask_joint/norm_stats.json"
+  ],
+  "action_horizon": 50,
+  "execute_horizon": 20,
+  "action_dim": 8,
+  "compatibility": {
+    "parameter_precision": "float32",
+    "lerobot_compatible": true
+  }
+}

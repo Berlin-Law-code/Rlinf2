@@ -1,0 +1,10 @@
+defaults:
+  - recap_compute_returns
+  - lbench_recap_datasets@data
+  - _self_
+
+data:
+  gamma: 1.0
+  failure_reward: -300.0
+  tag: lbench_round1_fail300
+  num_workers: 8

@@ -1,0 +1,86 @@
+env_type: lbench
+
+# RLinf and Isaac are intentionally isolated. The RLinf EnvWorker launches
+# this executable as one private subprocess per local environment.
+lbench_root: ${oc.env:LBENCH_ROOT}
+isaac_python: ${oc.env:LBENCH_ISAAC_PYTHON}
+# Optional physical GPU ids assigned to isolated Isaac processes. Shared GPU
+# placement must be explicitly enabled by the launcher. If null, the adapter
+# reads LBENCH_ISAAC_GPUS and finally falls back to the
+# parent's CUDA_VISIBLE_DEVICES only when neither is configured.
+isaac_cuda_visible_devices: null
+# env_rank pins every local environment to its rank's GPU; requires one entry
+# per environment rank and pipeline_stage_num=1. Default preserves old routing.
+isaac_gpu_assignment: round_robin
+backend_factory_path: simbox_eval.parallel.simbox_backend:create_simbox_backend
+
+total_num_envs: null
+# One explicit reset per rollout epoch keeps task/seed counts balanced. Inactive
+# slots remain padded after their first terminal transition.
+auto_reset: false
+ignore_terminations: false
+max_episode_steps: 1200
+max_steps_per_rollout_epoch: 1200
+rollout_epoch: 1
+group_size: 1
+is_eval: true
+seed: 0
+run_id: rlinf-lbench-eval
+
+# Empty means all tasks returned by LBench. Set either task_indices or
+# task_names, never both.
+task_indices: null
+fixed_seeds: []
+randomization_profile: null
+
+# This mapping is the shared contract for M5 evaluation and the M6 SFT config.
+camera_mapping:
+  main: obs_camera
+  wrist: obs_camera_2
+  additional: realsense
+gripper_open: [0.0, 0.0]
+gripper_close: [5.0, 5.0]
+gripper_threshold: 0.5
+# Observed Robotiq state uses its first measured gripper joint, independently
+# of the action targets above: position <= 0.4 is open, otherwise closed.
+observation_gripper_joint_threshold: 0.4
+
+connect_timeout_s: 120
+startup_timeout_s: 180
+request_timeout_s: 120
+
+backend_config:
+  simbox_eval_config:
+    task_cfg_path: ${oc.env:LBENCH_TASK_CONFIG}
+    workflow_type: SimBoxDualWorkFlow
+    max_step: ${...max_episode_steps}
+    headless: true
+    enable_cameras: true
+    multi_gpu: false
+
+video_cfg:
+  save_video: false
+  info_on_video: true
+  video_base_dir: ${runner.logger.log_path}/video/eval
+
+# RLinf's existing collector uses rank-qualified pickle files (or rank_<rank>
+# directories for LeRobot export). Pickle retains the full lbench_metadata.
+data_collection:
+  enabled: false
+  save_dir: ${runner.logger.log_path}/episodes
+  export_format: pickle
+  # When export_format=lerobot, this emits the exact feature names consumed by
+  # pi05_lbench_joint instead of RLinf's generic state/actions/image schema.
+  # This selects feature names, not the physical LeRobot storage version;
+  # that is determined by the installed LeRobot writer. lbench_v3 remains a
+  # backwards-compatible alias.
+  lerobot_schema: lbench_joint
+  only_success: false
+  # A 1200-step, three-camera episode can occupy several GiB before encoding.
+  # Keep at most one completed export queued; disk backpressure should slow the
+  # rollout instead of allowing memory use to grow across rollout epochs.
+  max_pending_exports: 1
+  # When true, a repeated launch creates max(id_*) + 1 instead of touching an
+  # existing finalized or partial LeRobot shard. Ignored for pickle export.
+  resume: false
+  fps: 30

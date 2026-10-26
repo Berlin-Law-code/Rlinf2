@@ -1,0 +1,8 @@
+{
+  "all_frames_verified": 3740411,
+  "all_episodes": 4493,
+  "sft_episodes": 1600,
+  "rollout_episodes": 2893,
+  "rollout_successes": 1832,
+  "rollout_failures": 1061
+}

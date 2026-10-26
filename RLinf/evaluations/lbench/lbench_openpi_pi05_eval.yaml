@@ -1,0 +1,75 @@
+defaults:
+  - env/lbench@env.eval
+  - model/pi0_5@rollout.model
+  - override hydra/job_logging: stdout
+  - _self_
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+  searchpath:
+    - file://${oc.env:EMBODIED_PATH}/config/
+
+cluster:
+  num_nodes: 1
+  component_placement:
+    env,rollout: all
+
+runner:
+  task_type: embodied_eval
+  only_eval: true
+  val_check_interval: -1
+  save_interval: -1
+  max_epochs: 1
+  max_steps: -1
+  resume_dir: null
+  ckpt_path: null
+  logger:
+    log_path: ../results
+    project_name: rlinf
+    experiment_name: lbench_openpi_pi05_eval
+    logger_backends: [tensorboard]
+
+env:
+  group_name: EnvGroup
+  eval:
+    total_num_envs: 2
+    rollout_epoch: 1
+    # Exactly one episode per env slot and rollout epoch. This prevents short
+    # tasks from contributing more evaluation episodes than long tasks.
+    auto_reset: false
+    max_episode_steps: 1200
+    # Primitive simulator steps: 1200 / execute horizon 20 = 60 policy calls.
+    max_steps_per_rollout_epoch: 1200
+    data_collection:
+      enabled: true
+      save_dir: ${runner.logger.log_path}/episodes/eval
+      export_format: pickle
+      only_success: false
+      fps: 30
+
+rollout:
+  group_name: RolloutGroup
+  rollout_backend: huggingface
+  recompute_logprobs: false
+  enable_offload: false
+  pipeline_stage_num: 1
+  model:
+    model_path: ${oc.env:LBENCH_SFT_CHECKPOINT}
+    action_dim: 8
+    # Match LeRobot Pi0.5's default Euler integration schedule.
+    num_steps: 10
+    # The model predicts 50 actions; evaluation executes the first 20 before
+    # replanning. The OpenPI config remains action_horizon=50.
+    num_action_chunks: 20
+    use_proprio: true
+    openpi_data:
+      norm_stats_path: ${oc.env:LBENCH_NORM_STATS}
+    openpi:
+      config_name: pi05_lbench_joint
+      num_images_in_input: 3
+      action_horizon: 50
+      action_env_dim: 8
+      action_chunk: ${..num_action_chunks}
+      noise_level: 0.3

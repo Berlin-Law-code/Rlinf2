@@ -1,0 +1,28 @@
+{
+  "Value": {
+    "source": "events.out.tfevents.1792524092.autodl-container-cf558fhufb-86983f44.75775.0",
+    "points": 8000,
+    "first_step": 0,
+    "last_step": 7999,
+    "first_loss": 5.916926383972168,
+    "last_loss": 1.747117519378662,
+    "first_200_mean": 4.96464886188507,
+    "last_200_mean": 1.7781056731939315,
+    "min": 1.5281082391738892,
+    "max": 6.00338077545166,
+    "nonfinite_count": 0
+  },
+  "Policy (H50 / E20)": {
+    "source": "events.out.tfevents.1792572421.autodl-container-cf558fhufb-86983f44.426286.0",
+    "points": 30000,
+    "first_step": 0,
+    "last_step": 29999,
+    "first_loss": 0.07116173952817917,
+    "last_loss": 0.012213179841637611,
+    "first_200_mean": 0.046071154065430164,
+    "last_200_mean": 0.011345397538971156,
+    "min": 0.0034043858759105206,
+    "max": 0.11893492937088013,
+    "nonfinite_count": 0
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "data": {
+    "train_data_paths": [
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/clean_the_dirt_with_browncloth_lighttable_part0_first200",
+        "type": "sft",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/heat_the_food_in_the_microwave_first200",
+        "type": "sft",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/insert_the_flower_in_vase_part0_first200",
+        "type": "sft",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/pack_in_objects_franka_first200",
+        "type": "sft",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/put_the_trashcan_in_trashcan_part0_first200",
+        "type": "sft",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/stack_bowls_first200",
+        "type": "sft",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/store_objects_in_the_drawer_0_first200",
+        "type": "sft",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/watering_plant_left_first200",
+        "type": "sft",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/clean_the_dirt_with_browncloth_lighttable_part0_first10000",
+        "type": "rollout",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/heat_the_food_in_the_microwave_first10000",
+        "type": "rollout",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/insert_the_flower_in_vase_part0_first10000",
+        "type": "rollout",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/pack_in_objects_franka_first10000",
+        "type": "rollout",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/put_the_trashcan_in_trashcan_part0_first10000",
+        "type": "rollout",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/stack_bowls_first10000",
+        "type": "rollout",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/store_objects_in_the_drawer_0_first10000",
+        "type": "rollout",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      },
+      {
+        "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/watering_plant_left_first10000",
+        "type": "rollout",
+        "weight": 1.0,
+        "robot_type": "lbench",
+        "model_type": "pi05"
+      }
+    ],
+    "model_type": "pi05",
+    "advantage_lookahead_step": 20,
+    "gamma": 1.0,
+    "robot_type": "lbench"
+  },
+  "advantage": {
+    "model": {
+      "model_type": "recap_value_model",
+      "precision": "bf16",
+      "is_lora": false,
+      "siglip_path": "/root/autodl-tmp/models/siglip2-so400m-patch14-224",
+      "gemma3_path": "/root/autodl-tmp/models/gemma-3-270m",
+      "tokenizer_path": "/root/autodl-tmp/models/gemma-3-270m",
+      "critic_expert_variant": "gemma_1m",
+      "num_bins": 201,
+      "v_min": -1.0,
+      "v_max": 0.0,
+      "value_dropout": 0.0,
+      "action_dim": 32,
+      "action_horizon": 50,
+      "max_token_len": 200,
+      "action_expert_variant": "gemma_300m",
+      "freeze_vision_encoder": false,
+      "train_expert_only": false,
+      "forward_mode": "vla",
+      "max_language_len": 50,
+      "stop_gradient_to_vlm": false
+    },
+    "value_checkpoint": "/root/autodl-tmp/outputs/lbench_recap_round1/value/checkpoints/global_step_8000",
+    "batch_size": 16,
+    "flush_interval": 64,
+    "num_dataloader_workers_per_gpu": 8,
+    "prefetch_factor": 2,
+    "video_decoder_cache_size": 3,
+    "discount_next_value": true,
+    "positive_quantile": 0.3,
+    "tag": "lbench_round1_fail300_n20_q30",
+    "returns_tag": "lbench_round1_fail300"
+  },
+  "distributed": {
+    "enabled": true,
+    "backend": "nccl",
+    "timeout": 3600
+  }
+}

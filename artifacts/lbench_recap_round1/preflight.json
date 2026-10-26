@@ -1,0 +1,87 @@
+{
+  "episodes": 4493,
+  "frames": 3740411,
+  "precision": "float32",
+  "datasets": [
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/clean_the_dirt_with_browncloth_lighttable_part0_first200",
+      "frames": 70289,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/heat_the_food_in_the_microwave_first200",
+      "frames": 250464,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/insert_the_flower_in_vase_part0_first200",
+      "frames": 142912,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/pack_in_objects_franka_first200",
+      "frames": 138059,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/put_the_trashcan_in_trashcan_part0_first200",
+      "frames": 110729,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/stack_bowls_first200",
+      "frames": 161862,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/store_objects_in_the_drawer_0_first200",
+      "frames": 140764,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/watering_plant_left_first200",
+      "frames": 134900,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/clean_the_dirt_with_browncloth_lighttable_part0_first10000",
+      "frames": 111476,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/heat_the_food_in_the_microwave_first10000",
+      "frames": 682313,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/insert_the_flower_in_vase_part0_first10000",
+      "frames": 227881,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/pack_in_objects_franka_first10000",
+      "frames": 360108,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/put_the_trashcan_in_trashcan_part0_first10000",
+      "frames": 318271,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/stack_bowls_first10000",
+      "frames": 286159,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/store_objects_in_the_drawer_0_first10000",
+      "frames": 352861,
+      "checked_first_and_last": true
+    },
+    {
+      "path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/watering_plant_left_first10000",
+      "frames": 251363,
+      "checked_first_and_last": true
+    }
+  ]
+}

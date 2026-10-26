@@ -1,0 +1,110 @@
+defaults:
+  - model/pi0_5@actor.model
+  - hybrid_engines/fsdp@actor.fsdp_config
+  - override hydra/job_logging: stdout
+  - _self_
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+  searchpath:
+    - file://${oc.env:EMBODIED_PATH}/config/
+
+cluster:
+  num_nodes: 1
+  component_placement:
+    actor,env,rollout: all
+
+runner:
+  task_type: sft
+  logger:
+    log_path: ../results
+    project_name: rlinf
+    experiment_name: lbench_sft_openpi_pi05_lerobot_aligned
+    logger_backends: [tensorboard]
+  max_epochs: -1
+  max_steps: 30000
+  val_check_interval: -1
+  save_interval: 5000
+  # Each full model/optimizer checkpoint is about 58 GiB. Prune only older
+  # successfully completed saves after a replacement has finished.
+  max_saved_checkpoints: 3
+  resume_dir: null
+
+data:
+  # The current OpenPI environment reads the equivalent LeRobot-v2.1 copy.
+  # Normalization is supplied separately from LeRobot-v3.0 meta/stats.json.
+  train_data_paths: ${oc.env:LBENCH_LEROBOT_REPO}
+  # Per rank: four GPUs create eight workers in total. Leave CPU RAM for the
+  # model/optimizer state copied to the host during checkpointing.
+  num_workers: 2
+
+actor:
+  group_name: ActorGroup
+  training_backend: fsdp
+  # LeRobot's batch_size is per Accelerate process: four ranks x 16 samples
+  # gives an effective global batch of 64, with one synchronized update and
+  # no gradient accumulation per optimizer step.
+  micro_batch_size: 16
+  global_batch_size: 64
+  seed: 1000
+  model:
+    model_path: ${oc.env:PI05_BASE_CHECKPOINT}
+    model_type: openpi
+    precision: null
+    num_action_chunks: 50
+    action_dim: 8
+    add_value_head: false
+    use_proprio: true
+    # Inference-only; SFT itself samples one continuous flow time per example.
+    num_steps: 10
+    openpi:
+      config_name: pi05_lbench_joint
+      num_images_in_input: 3
+      action_horizon: 50
+      action_chunk: ${..num_action_chunks}
+      action_env_dim: ${..action_dim}
+      num_steps: ${..num_steps}
+      train_expert_only: false
+      sft_image_augmentation: false
+      parameter_precision: float32
+      add_value_head: false
+    openpi_data:
+      repo_id: ${oc.env:LBENCH_LEROBOT_REPO}
+      norm_stats_path: ${oc.env:LBENCH_NORM_STATS}
+      lerobot_compatible: true
+  optim:
+    lr: 2.5e-5
+    value_lr: 1.0e-4
+    adam_beta1: 0.9
+    adam_beta2: 0.95
+    adam_eps: 1.0e-8
+    weight_decay: 0.01
+    clip_grad: 1.0
+    # Keep the same 30k schedule even for a short startup/save smoke test.
+    total_training_steps: 30000
+    lr_warmup_steps: 1000
+    lr_scheduler: lerobot_cosine
+    num_cycles: 0.5
+    min_lr: 2.5e-6
+  fsdp_config:
+    strategy: fsdp
+    sharding_strategy: full_shard
+    use_orig_params: true
+    gradient_checkpointing: true
+    save_full_model_weights: true
+    mixed_precision:
+      # LeRobot's FP32 checkpoint parameters + BF16 Accelerate autocast.
+      param_dtype: fp32
+      reduce_dtype: fp32
+      buffer_dtype: fp32
+    amp_autocast:
+      enabled: true
+      precision: bf16
+
+reward:
+  use_reward_model: false
+
+critic:
+  use_critic_model: false

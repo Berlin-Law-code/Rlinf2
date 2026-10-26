@@ -1,0 +1,16 @@
+{
+  "checkpoint_step": 30000,
+  "model_loaded": true,
+  "synthetic_inference_passed": true,
+  "returned_action_shape": [
+    1,
+    20,
+    8
+  ],
+  "action_horizon": 50,
+  "execute_horizon": 20,
+  "guidance_type": "positive",
+  "guidance_scale": 1.0,
+  "finite_actions": true,
+  "note": "Synthetic input validates loading and inference, not task success."
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "file": "events.out.tfevents.1792523101.autodl-container-cf558fhufb-86983f44.32035.0",
+    "points": 0
+  },
+  {
+    "file": "events.out.tfevents.1792523654.autodl-container-cf558fhufb-86983f44.55364.0",
+    "run": "Value",
+    "points": 16,
+    "last_step": 15
+  },
+  {
+    "file": "events.out.tfevents.1792524092.autodl-container-cf558fhufb-86983f44.75775.0",
+    "run": "Value",
+    "points": 8000,
+    "last_step": 7999
+  },
+  {
+    "file": "events.out.tfevents.1792570263.autodl-container-cf558fhufb-86983f44.381128.0",
+    "points": 0
+  },
+  {
+    "file": "events.out.tfevents.1792571535.autodl-container-cf558fhufb-86983f44.411436.0",
+    "run": "Policy (H50 / E20)",
+    "points": 170,
+    "last_step": 169
+  },
+  {
+    "file": "events.out.tfevents.1792572421.autodl-container-cf558fhufb-86983f44.426286.0",
+    "run": "Policy (H50 / E20)",
+    "points": 30000,
+    "last_step": 29999
+  }
+]

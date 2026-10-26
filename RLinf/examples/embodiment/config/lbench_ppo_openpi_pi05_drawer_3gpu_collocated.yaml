@@ -1,0 +1,252 @@
+# LIBERO-Long-style collocation: each GPU trains, samples and hosts eight Isaac envs.
+# Launch with scripts/lbench/remote/09_ppo_drawer_3gpu_collocated.sh.
+defaults:
+  - env/lbench@env.train
+  - env/lbench@env.eval
+  - model/pi0_5@actor.model
+  - hybrid_engines/fsdp@actor.fsdp_config
+  - weight_syncer/bucket_syncer@weight_syncer
+  - override hydra/job_logging: stdout
+  - _self_
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+  searchpath:
+    - file://${oc.env:EMBODIED_PATH}/config/
+
+cluster:
+  num_nodes: 1
+  component_placement:
+    actor,env,rollout: 0-2
+
+runner:
+  task_type: embodied
+  logger:
+    log_path: ../results
+    project_name: rlinf
+    experiment_name: lbench_ppo_drawer_3gpu_collocated
+    logger_backends: [tensorboard]
+  max_epochs: 500
+  # One global step collects 24 parallel envs x 3 rounds = 72 episodes.
+  max_steps: 500
+  only_eval: false
+  # Evaluate the final checkpoint separately after training has completed.
+  val_check_interval: -1
+  # Preserve each completed round while keeping only three full checkpoints.
+  save_interval: 1
+  max_saved_checkpoints: 3
+  # Save the latest model and stop normally after three zero-success rounds.
+  max_consecutive_zero_success: 3
+  resume_dir: null
+  ckpt_path: null
+
+# Single-task PPO: keep the sparse first-success reward and exact executed
+# sub-action masks used by the SFT-aligned rollout contract.
+algorithm:
+  normalize_advantages: true
+  kl_penalty: kl
+  group_size: 1
+  reward_coef: 1.0
+  reward_type: chunk_level
+  logprob_type: chunk_level
+  entropy_type: token_level
+  # Reuse the same rollout for four passes, as in piRL's LIBERO-Long setting.
+  # At most 12 optimizer calls per outer iteration; the KL guard can skip actor updates.
+  update_epoch: 4
+  adv_type: gae
+  loss_type: actor_critic
+  loss_agg_func: token-mean
+  kl_beta: 0.0
+  entropy_bonus: 0
+  clip_ratio_high: 0.2
+  clip_ratio_low: 0.2
+  clip_ratio_c: 3.0
+  clip_log_ratio_min: -20.0
+  clip_log_ratio_max: 20.0
+  ppo_update_guard:
+    enabled: true
+    target_kl: 0.02
+    max_initial_logratio: 0.01
+    probe_batch_size: 64
+    skip_actor_on_zero_reward: true
+  value_clip: 0.2
+  huber_delta: 10.0
+  gamma: 0.99
+  gae_lambda: 0.95
+  # Kept explicit for consistency with RLinf's episodic GAE contract. With
+  # auto_reset=false below, RLinf bypasses auto-reset bootstrapping entirely:
+  # the aligned 900-step horizon ends the finite-horizon episode and cannot
+  # connect its value target to a newly reset task.
+  bootstrap_type: standard
+  filter_rewards: false
+  rewards_lower_bound: 0.1
+  rewards_upper_bound: 0.9
+  balanced_rl: true
+
+env:
+  group_name: EnvGroup
+  train:
+    total_num_envs: 24
+    # 24 envs x 3 rounds x 45 chunks = 3240 padded slots per PPO iteration.
+    # Eight Isaac processes per GPU, with three actor and three rollout ranks.
+    rollout_epoch: 3
+    backend_config:
+      simbox_eval_config:
+        cpu_thread_limit: 8
+    task_indices: [6]
+    seed: 1000
+    isaac_cuda_visible_devices: [0, 1, 2]
+    isaac_gpu_assignment: env_rank
+    connect_timeout_s: 300
+    startup_timeout_s: 600
+    request_timeout_s: 300
+    auto_reset: false
+    ignore_terminations: false
+    is_eval: false
+    run_id: rlinf-lbench-ppo
+    max_episode_steps: 900
+    # Primitive simulator steps. EnvWorker divides this by the executed action
+    # horizon (20), yielding exactly 45 policy/chunk steps per rollout epoch.
+    max_steps_per_rollout_epoch: 900
+    task_sampling: balanced_round_robin
+    reward_adapter:
+      # RLinf LIBERO parity: ordinary/progress/failure/timeout steps receive 0;
+      # the first success transition receives algorithm.reward_coef once.
+      type: libero_sparse_success
+      success_bonus: ${algorithm.reward_coef}
+    data_collection:
+      # Avoid retaining full-resolution episode frames during PPO.
+      enabled: false
+      save_dir: ${runner.logger.log_path}/episodes/train
+      export_format: pickle
+      only_success: false
+      fps: 30
+  eval:
+    # Inactive while runner.val_check_interval=-1; no eval Isaac processes start.
+    total_num_envs: 3
+    # Dormant placeholder: one environment per rank, three fixed scenes.
+    rollout_epoch: 1
+    backend_config:
+      simbox_eval_config:
+        cpu_thread_limit: 8
+    task_indices: [6]
+    fixed_seeds: [0, 1, 2]
+    seed: 0
+    # Automatic evaluation is disabled; no extra environment pool is resident.
+    isaac_cuda_visible_devices: [0, 1, 2]
+    isaac_gpu_assignment: env_rank
+    connect_timeout_s: 300
+    startup_timeout_s: 600
+    request_timeout_s: 300
+    auto_reset: false
+    ignore_terminations: false
+    is_eval: true
+    run_id: rlinf-lbench-eval
+    max_episode_steps: 900
+    # 900 primitive steps / 20 executed actions = 45 policy calls.
+    max_steps_per_rollout_epoch: 900
+    task_sampling: balanced_round_robin
+    use_fixed_reset_state_ids: true
+    data_collection:
+      enabled: false
+      save_dir: ${runner.logger.log_path}/episodes/eval
+      export_format: pickle
+      only_success: false
+      fps: 30
+    video_cfg:
+      save_video: false
+      video_base_dir: ${runner.logger.log_path}/video/eval
+
+rollout:
+  group_name: RolloutGroup
+  generation_backend: huggingface
+  recompute_logprobs: false
+  # Release sampling-model GPU memory before the three actors train.
+  enable_offload: true
+  pipeline_stage_num: 1
+  model:
+    model_path: ${oc.env:LBENCH_SFT_CHECKPOINT}
+    precision: ${actor.model.precision}
+
+actor:
+  group_name: ActorGroup
+  training_backend: fsdp
+  micro_batch_size: 1
+  # 1080 / 3 ranks = 360 microbatches per rank per optimizer update.
+  # 3240 / 1080 * 4 passes = 12 shared optimizer steps.
+  global_batch_size: 1080
+  seed: 42
+  # Release training weights/optimizer during sampling on the same GPUs.
+  enable_offload: true
+  # Avoid a second complete GPU weight copy during synchronization.
+  rollout_state_dict_cpu_offload: true
+  model:
+    model_path: ${oc.env:LBENCH_SFT_CHECKPOINT}
+    model_type: openpi
+    num_action_chunks: 20
+    action_dim: 8
+    add_value_head: true
+    use_proprio: true
+    num_steps: 10
+    openpi_data:
+      lerobot_compatible: true
+      norm_stats_path: ${oc.env:LBENCH_NORM_STATS}
+    openpi:
+      config_name: pi05_lbench_joint
+      parameter_precision: float32
+      # Disable TF32/reduced matmul precision in actor and inherited rollout.
+      strict_ppo_precision: true
+      num_images_in_input: 3
+      action_horizon: 50
+      # Model horizon is 50; rollout, logprob and mask cover executed actions 0:20.
+      action_chunk: ${..num_action_chunks}
+      action_env_dim: ${..action_dim}
+      num_steps: ${..num_steps}
+      # Match RLinf's Pi0.5 PPO baseline: keep the PaliGemma VLM frozen and
+      # optimize the action expert/projections plus the value head.
+      train_expert_only: true
+      noise_method: flow_sde
+      noise_level: 0.5
+      add_value_head: true
+      value_after_vlm: true
+      value_vlm_mode: mean_token
+      detach_critic_input: true
+  optim:
+    lr: 1.0e-6
+    value_lr: 1.0e-4
+    adam_beta1: 0.9
+    adam_beta2: 0.95
+    adam_eps: 1.0e-8
+    weight_decay: 0.01
+    clip_grad: 1.0
+    # Successful optimizer steps, not rollout iterations. Normally the first
+    # eight of twelve updates in round one; actor starts during the third pass.
+    critic_warmup_steps: 8
+    total_training_steps: ${runner.max_steps}
+    min_lr_rate: 0.1
+    lr_scheduler: cosine
+  fsdp_config:
+    strategy: fsdp
+    sharding_strategy: no_shard
+    # Required when frozen VLM parameters and trainable expert/value parameters
+    # coexist in an FSDP-wrapped model.
+    use_orig_params: true
+    gradient_checkpointing: false
+    save_full_model_weights: true
+    # Keep checkpoint tensor clones off the GPUs occupied by Isaac.
+    checkpoint_cpu_staging: true
+    mixed_precision:
+      # Actor likelihood recomputation and rollout both use FP32.
+      param_dtype: fp32
+      reduce_dtype: fp32
+      buffer_dtype: fp32
+    amp_autocast:
+      enabled: false
+
+reward:
+  use_reward_model: false
+
+critic:
+  use_critic_model: false

@@ -1,0 +1,31 @@
+{
+  "smoke_steps": 3,
+  "gpu_count": 2,
+  "micro_batch_size": 16,
+  "global_batch_size": 64,
+  "gradient_accumulation": 2,
+  "production_max_steps": 30000,
+  "production_save_interval": 5000,
+  "checkpoint": "/root/autodl-tmp/outputs/lbench_recap_policy_fsdp_fix_smoke/policy_h50_e20/checkpoints/global_step_3",
+  "checkpoint_complete": true,
+  "checkpoint_weights_bytes": 16573944856,
+  "embedding_key": "paligemma_with_expert.paligemma.model.language_model.embed_tokens.weight",
+  "embedding_shape": [
+    257152,
+    2048
+  ],
+  "shared_head_values_match_embedding": true,
+  "saved_norm_matches_training_norm": true,
+  "recorded_losses": [
+    0.0716,
+    0.0333,
+    0.0859,
+    0.0859
+  ],
+  "cgroup_oom_kill_delta": 0,
+  "tests": {
+    "two_rank_fsdp": "passed",
+    "cfg_contract": "3 passed"
+  },
+  "limitation": "Three-step functional and checkpoint smoke test, not a long-run memory stability test."
+}

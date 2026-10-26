@@ -1,0 +1,17 @@
+{
+  "scope": "Archive validation; no training or environment rollout was rerun.",
+  "loss_csv_byte_identical_to_original": true,
+  "value_points": 8000,
+  "policy_points": 30000,
+  "hydra_composition_stages_passed": [
+    "returns",
+    "value",
+    "advantages",
+    "policy"
+  ],
+  "new_python_scripts_compile": true,
+  "launcher_bash_syntax_passed": true,
+  "readme_local_links_valid": true,
+  "original_rlinf_worktree_status_unchanged": true,
+  "source_and_log_credential_pattern_scan_findings": 0
+}

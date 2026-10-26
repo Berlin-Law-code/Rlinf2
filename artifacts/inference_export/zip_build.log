@@ -1,0 +1,36 @@
+Write ZIP: 2.32 GiB
+Write ZIP: 4.34 GiB
+Write ZIP: 6.35 GiB
+Write ZIP: 8.21 GiB
+Write ZIP: 10.17 GiB
+Write ZIP: 12.08 GiB
+Write ZIP: 14.08 GiB
+ZIP written; verifying all members against source SHA-256
+Verify model_state_dict/full_weights.pt: 4.73 GiB
+Verify model_state_dict/full_weights.pt: 11.27 GiB
+{
+  "archive": "/root/autodl-fs/lbench_recap_pi05_h50_e20_step30000_inference.zip",
+  "format": "ZIP64",
+  "compression": "stored",
+  "bytes": 16578578070,
+  "sha256": "cc20c138307d27e16c13feec02e0971ee5d7c690f95f446b671301374e37e550",
+  "files_verified": 53,
+  "every_file_matches_source": true,
+  "archive_checksum_verified_after_readback": true,
+  "inference_validation": {
+    "checkpoint_step": 30000,
+    "model_loaded": true,
+    "synthetic_inference_passed": true,
+    "returned_action_shape": [
+      1,
+      20,
+      8
+    ],
+    "action_horizon": 50,
+    "execute_horizon": 20,
+    "guidance_type": "positive",
+    "guidance_scale": 1.0,
+    "finite_actions": true,
+    "note": "Synthetic input validates loading and inference, not task success."
+  }
+}

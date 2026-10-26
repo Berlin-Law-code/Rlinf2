@@ -1,0 +1,52 @@
+{
+  "world_size": 2,
+  "micro_batch_size": 32,
+  "global_batch_size": 256,
+  "gradient_accumulation": 4,
+  "completed_steps": 3,
+  "checkpoint": "/root/autodl-tmp/outputs/lbench_recap_value_fsdp_fix_smoke/value/checkpoints/global_step_3",
+  "checkpoint_complete": true,
+  "metrics": {
+    "train/loss": [
+      5.999105930328369,
+      6.101230621337891,
+      6.006855010986328
+    ],
+    "train/grad_norm": [
+      16.728090286254883,
+      17.823923110961914,
+      17.193450927734375
+    ],
+    "train/memory/cpu_rss_gib": [
+      4.077495574951172,
+      4.080497741699219,
+      4.081001281738281
+    ],
+    "train/memory/gpu_allocated_gib": [
+      5.5206193923950195,
+      5.5206193923950195,
+      5.5206193923950195
+    ],
+    "train/memory/gpu_reserved_gib": [
+      82.529296875,
+      82.529296875,
+      82.529296875
+    ]
+  },
+  "sampled_container_peak_gib": 88.26766586303711,
+  "initial_memory_events": {
+    "low": 0,
+    "high": 0,
+    "max": 0,
+    "oom": 0,
+    "oom_kill": 0
+  },
+  "final_memory_events": {
+    "low": 0,
+    "high": 0,
+    "max": 0,
+    "oom": 0,
+    "oom_kill": 0
+  },
+  "scope": "Three optimizer steps and checkpoint save; not a long-run memory stability guarantee."
+}

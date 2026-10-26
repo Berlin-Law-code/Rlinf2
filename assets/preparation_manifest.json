@@ -1,0 +1,159 @@
+{
+  "datasets": [
+    {
+      "source": "/root/autodl-tmp/datasets/lbench_8tasks_all_merge_simple_v21/clean_the_dirt_with_browncloth_lighttable_part0_first200",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/clean_the_dirt_with_browncloth_lighttable_part0_first200",
+      "type": "sft",
+      "episodes": 200,
+      "frames": 70289,
+      "successes": 200,
+      "failures": 0
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/lbench_8tasks_all_merge_simple_v21/heat_the_food_in_the_microwave_first200",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/heat_the_food_in_the_microwave_first200",
+      "type": "sft",
+      "episodes": 200,
+      "frames": 250464,
+      "successes": 200,
+      "failures": 0
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/lbench_8tasks_all_merge_simple_v21/insert_the_flower_in_vase_part0_first200",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/insert_the_flower_in_vase_part0_first200",
+      "type": "sft",
+      "episodes": 200,
+      "frames": 142912,
+      "successes": 200,
+      "failures": 0
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/lbench_8tasks_all_merge_simple_v21/pack_in_objects_franka_first200",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/pack_in_objects_franka_first200",
+      "type": "sft",
+      "episodes": 200,
+      "frames": 138059,
+      "successes": 200,
+      "failures": 0
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/lbench_8tasks_all_merge_simple_v21/put_the_trashcan_in_trashcan_part0_first200",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/put_the_trashcan_in_trashcan_part0_first200",
+      "type": "sft",
+      "episodes": 200,
+      "frames": 110729,
+      "successes": 200,
+      "failures": 0
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/lbench_8tasks_all_merge_simple_v21/stack_bowls_first200",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/stack_bowls_first200",
+      "type": "sft",
+      "episodes": 200,
+      "frames": 161862,
+      "successes": 200,
+      "failures": 0
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/lbench_8tasks_all_merge_simple_v21/store_objects_in_the_drawer_0_first200",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/store_objects_in_the_drawer_0_first200",
+      "type": "sft",
+      "episodes": 200,
+      "frames": 140764,
+      "successes": 200,
+      "failures": 0
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/lbench_8tasks_all_merge_simple_v21/watering_plant_left_first200",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/sft/watering_plant_left_first200",
+      "type": "sft",
+      "episodes": 200,
+      "frames": 134900,
+      "successes": 200,
+      "failures": 0
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/round1_success_failure/clean_the_dirt_with_browncloth_lighttable_part0_first10000",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/clean_the_dirt_with_browncloth_lighttable_part0_first10000",
+      "type": "rollout",
+      "episodes": 237,
+      "frames": 111476,
+      "successes": 174,
+      "failures": 63
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/round1_success_failure/heat_the_food_in_the_microwave_first10000",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/heat_the_food_in_the_microwave_first10000",
+      "type": "rollout",
+      "episodes": 441,
+      "frames": 682313,
+      "successes": 277,
+      "failures": 164
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/round1_success_failure/insert_the_flower_in_vase_part0_first10000",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/insert_the_flower_in_vase_part0_first10000",
+      "type": "rollout",
+      "episodes": 311,
+      "frames": 227881,
+      "successes": 242,
+      "failures": 69
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/round1_success_failure/pack_in_objects_franka_first10000",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/pack_in_objects_franka_first10000",
+      "type": "rollout",
+      "episodes": 404,
+      "frames": 360108,
+      "successes": 203,
+      "failures": 201
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/round1_success_failure/put_the_trashcan_in_trashcan_part0_first10000",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/put_the_trashcan_in_trashcan_part0_first10000",
+      "type": "rollout",
+      "episodes": 372,
+      "frames": 318271,
+      "successes": 217,
+      "failures": 155
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/round1_success_failure/stack_bowls_first10000",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/stack_bowls_first10000",
+      "type": "rollout",
+      "episodes": 326,
+      "frames": 286159,
+      "successes": 245,
+      "failures": 81
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/round1_success_failure/store_objects_in_the_drawer_0_first10000",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/store_objects_in_the_drawer_0_first10000",
+      "type": "rollout",
+      "episodes": 406,
+      "frames": 352861,
+      "successes": 222,
+      "failures": 184
+    },
+    {
+      "source": "/root/autodl-tmp/datasets/round1_success_failure/watering_plant_left_first10000",
+      "dataset_path": "/root/autodl-tmp/datasets/lbench_recap_round1/rollout/watering_plant_left_first10000",
+      "type": "rollout",
+      "episodes": 396,
+      "frames": 251363,
+      "successes": 252,
+      "failures": 144
+    }
+  ],
+  "episodes": 4493,
+  "frames": 3740411,
+  "norm_stats_path": "/root/autodl-tmp/datasets/lbench_recap_round1/assets/lerobot_episode_stats/norm_stats.json",
+  "norm_stats_sha256": "d5bb058a07008caec94294965cb20896ee96c1509d0ba466ea35f9b1f835823c",
+  "reference": "/root/autodl-tmp/datasets/lbench_8tasks_all_merge_simple_v21_merged/assets/lerobot_meta_stats/norm_stats.json",
+  "reference_sha256": "2626e1bce1ad4b4cd63019ed6217e563c2a31123a57a4f51f89706e56c1254cf",
+  "sft_reproduces_reference_exactly_float32": true,
+  "method": "LeRobot get_feature_stats per episode, axis=0, float32 raw frames, 5000-bin histograms; aggregate_stats across all episodes. q01/q99 are episode quantiles weighted by episode frame count. Mean and pooled variance are count weighted. Cast to float32 last. No action-window weighting and no pooled-frame quantiles.",
+  "statistics_implementation": "/root/autodl-tmp/Berlin/lerobot/src/lerobot/datasets/compute_stats.py",
+  "statistics_implementation_sha256": "7b0621bbdd36987939742a1803b3491b794db7b0e6393677e9b1a3e1d86aeafc",
+  "rollout_outcome_source": "meta/rollout_provenance.jsonl: source_episode_success"
+}

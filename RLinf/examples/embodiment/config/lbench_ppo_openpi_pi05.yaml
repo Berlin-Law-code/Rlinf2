@@ -1,0 +1,199 @@
+defaults:
+  - env/lbench@env.train
+  - env/lbench@env.eval
+  - model/pi0_5@actor.model
+  - hybrid_engines/fsdp@actor.fsdp_config
+  - weight_syncer/patch_syncer@weight_syncer
+  - override hydra/job_logging: stdout
+  - _self_
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+  searchpath:
+    - file://${oc.env:EMBODIED_PATH}/config/
+
+cluster:
+  num_nodes: 1
+  component_placement:
+    actor,env,rollout: all
+
+runner:
+  task_type: embodied
+  logger:
+    log_path: ../results
+    project_name: rlinf
+    experiment_name: lbench_ppo_openpi_pi05
+    logger_backends: [tensorboard]
+  max_epochs: 1000
+  # One global step contains rollout_epoch complete rollout batches.  Keep the
+  # formal default bounded; override deliberately for longer experiments.
+  max_steps: 200
+  only_eval: false
+  val_check_interval: -1
+  save_interval: 40
+  resume_dir: null
+  ckpt_path: null
+
+# Published RLinf LIBERO Pi0.5 PPO parameters. LBench adds exact sub-action
+# masking and globally balanced round-robin task assignment. The default
+# reward adapter below deliberately matches LIBERO's first-success-only reward;
+# progress shaping remains available as an explicit ablation.
+algorithm:
+  normalize_advantages: true
+  kl_penalty: kl
+  group_size: 1
+  reward_coef: 1.0
+  reward_type: chunk_level
+  logprob_type: chunk_level
+  entropy_type: token_level
+  # Match RLinf's LIBERO-Long Pi0.5 PPO baseline (the shorter Spatial/Object
+  # Pi0.5 recipes use one update epoch).
+  update_epoch: 4
+  adv_type: gae
+  loss_type: actor_critic
+  loss_agg_func: token-mean
+  kl_beta: 0.0
+  entropy_bonus: 0
+  clip_ratio_high: 0.2
+  clip_ratio_low: 0.2
+  clip_ratio_c: 3.0
+  value_clip: 0.2
+  huber_delta: 10.0
+  gamma: 0.99
+  gae_lambda: 0.95
+  # Kept explicit for consistency with RLinf's episodic GAE contract. With
+  # auto_reset=false below, RLinf bypasses auto-reset bootstrapping entirely:
+  # the aligned 1200-step horizon ends the finite-horizon episode and cannot
+  # connect its value target to a newly reset task.
+  bootstrap_type: standard
+  filter_rewards: false
+  rewards_lower_bound: 0.1
+  rewards_upper_bound: 0.9
+  balanced_rl: true
+
+env:
+  group_name: EnvGroup
+  train:
+    total_num_envs: 8
+    rollout_epoch: 8
+    auto_reset: false
+    ignore_terminations: false
+    is_eval: false
+    run_id: rlinf-lbench-ppo
+    max_episode_steps: 1200
+    # Primitive simulator steps. EnvWorker divides this by the executed action
+    # horizon (20), yielding exactly 60 policy/chunk steps per rollout epoch.
+    max_steps_per_rollout_epoch: 1200
+    task_sampling: balanced_round_robin
+    reward_adapter:
+      # RLinf LIBERO parity: ordinary/progress/failure/timeout steps receive 0;
+      # the first success transition receives algorithm.reward_coef once.
+      type: libero_sparse_success
+      success_bonus: ${algorithm.reward_coef}
+    data_collection:
+      # A formal 8-env/8-rollout/1200-step run produces a very large camera
+      # archive. Keep collection opt-in for training; the M8 dual-env smoke
+      # stage enables it explicitly to validate the path.
+      enabled: false
+      save_dir: ${runner.logger.log_path}/episodes/train
+      export_format: pickle
+      only_success: false
+      fps: 30
+  eval:
+    total_num_envs: 8
+    rollout_epoch: 1
+    auto_reset: false
+    ignore_terminations: false
+    is_eval: true
+    run_id: rlinf-lbench-eval
+    max_episode_steps: 1200
+    # 1200 primitive steps / 20 executed actions = 60 policy calls.
+    max_steps_per_rollout_epoch: 1200
+    task_sampling: balanced_round_robin
+    use_fixed_reset_state_ids: true
+    data_collection:
+      enabled: true
+      save_dir: ${runner.logger.log_path}/episodes/eval
+      export_format: pickle
+      only_success: false
+      fps: 30
+    video_cfg:
+      save_video: true
+      video_base_dir: ${runner.logger.log_path}/video/eval
+
+rollout:
+  group_name: RolloutGroup
+  generation_backend: huggingface
+  recompute_logprobs: false
+  enable_offload: false
+  pipeline_stage_num: 1
+  model:
+    model_path: ${oc.env:LBENCH_SFT_CHECKPOINT}
+    precision: ${actor.model.precision}
+
+actor:
+  group_name: ActorGroup
+  training_backend: fsdp
+  micro_batch_size: 1
+  global_batch_size: 32
+  seed: 42
+  enable_offload: false
+  model:
+    model_path: ${oc.env:LBENCH_SFT_CHECKPOINT}
+    model_type: openpi
+    num_action_chunks: 20
+    action_dim: 8
+    add_value_head: true
+    use_proprio: true
+    num_steps: 5
+    openpi_data:
+      norm_stats_path: ${oc.env:LBENCH_NORM_STATS}
+    openpi:
+      config_name: pi05_lbench_joint
+      num_images_in_input: 3
+      action_horizon: 50
+      # Model horizon is 50; rollout, logprob and mask cover executed actions 0:20.
+      action_chunk: ${..num_action_chunks}
+      action_env_dim: ${..action_dim}
+      num_steps: ${..num_steps}
+      # Match RLinf's Pi0.5 PPO baseline: keep the PaliGemma VLM frozen and
+      # optimize the action expert/projections plus the value head.
+      train_expert_only: true
+      noise_method: flow_sde
+      noise_level: 0.5
+      add_value_head: true
+      value_after_vlm: true
+      value_vlm_mode: mean_token
+      detach_critic_input: true
+  optim:
+    lr: 5.0e-6
+    value_lr: 1.0e-4
+    adam_beta1: 0.9
+    adam_beta2: 0.95
+    adam_eps: 1.0e-8
+    weight_decay: 0.01
+    clip_grad: 1.0
+    critic_warmup_steps: 0
+    total_training_steps: ${runner.max_steps}
+    min_lr_rate: 0.1
+    lr_scheduler: cosine
+  fsdp_config:
+    strategy: fsdp
+    sharding_strategy: no_shard
+    # Required when frozen VLM parameters and trainable expert/value parameters
+    # coexist in an FSDP-wrapped model.
+    use_orig_params: true
+    gradient_checkpointing: false
+    save_full_model_weights: true
+    mixed_precision:
+      param_dtype: ${actor.model.precision}
+      reduce_dtype: ${actor.model.precision}
+      buffer_dtype: ${actor.model.precision}
+
+reward:
+  use_reward_model: false
+
+critic:
+  use_critic_model: false
